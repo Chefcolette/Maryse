@@ -1,10 +1,18 @@
-const CACHE_NAME = 'maryse-v1';
+const CACHE_NAME = 'maryse-v2';
+
+const APP_FILES = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png',
+  './favicon-48.png'
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      cache.addAll(['./', './index.html'])
-    )
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))
   );
   self.skipWaiting();
 });
@@ -29,15 +37,15 @@ self.addEventListener('fetch', event => {
     caches.match(event.request).then(cached => {
       if (cached) return cached;
 
-      return fetch(event.request)
-        .then(response => {
+      return fetch(event.request).then(response => {
+        if (response && response.ok) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache =>
-            cache.put(event.request, copy)
-          );
-          return response;
-        })
-        .catch(() => caches.match('./index.html'));
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, copy);
+          });
+        }
+        return response;
+      }).catch(() => caches.match('./index.html'));
     })
   );
 });

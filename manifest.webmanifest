@@ -1,10 +1,12 @@
 {
   "name": "MARYSE — Le copilote des métiers de bouche",
   "short_name": "MARYSE",
-  "description": "Le copilote des métiers de bouche",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
+  "description": "Le copilote des métiers de bouche",
   "background_color": "#11151a",
   "theme_color": "#11151a",
   "icons": [
@@ -12,13 +14,13 @@
       "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

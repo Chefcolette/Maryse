@@ -101,7 +101,59 @@ function addVoice(who,text){const log=document.getElementById('voiceLog');if(!lo
  function setMicStatus(type,title,detail){const el=document.getElementById('micStatus');const state=document.getElementById('voiceState');const btn=document.getElementById('voiceBtn');if(!el)return;const icons={ok:'🟢',warn:'🟠',bad:'🔴',info:'🔵'};el.innerHTML=`<b>${icons[type]||'ℹ️'} ${title}</b><div class="small" style="margin-top:4px">${detail}</div>`;if(state)state.textContent=type==='ok'?'Microphone prêt':type==='bad'?'Microphone bloqué':'Micro non testé';if(btn){btn.disabled=type!=='ok';btn.style.opacity=type==='ok'?'1':'.55';btn.title=type==='ok'?'Parler à MARYSE':'Testez d’abord le microphone'}}async function checkMicrophone(userAction=false){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setMicStatus('bad','Microphone non disponible','Ce navigateur ne permet pas l’accès au microphone ici. Ouvrez MARYSE dans Chrome ou un navigateur compatible, puis réessayez.');return false}setMicStatus('info','Vérification du microphone…','Votre téléphone va demander l’autorisation si elle n’a pas encore été donnée.');try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());micReady=true;setMicStatus('ok','Microphone autorisé','MARYSE peut maintenant vous écouter. Appuyez sur le bouton 🎙️ puis parlez.');if(userAction)toast('Microphone activé ✓');return true}catch(e){micReady=false;let detail='Autorisez le microphone pour Chrome dans les réglages du téléphone, puis revenez ici.';if(e&&e.name==='NotAllowedError')detail='L’accès au microphone a été refusé. Dans Chrome, autorisez le microphone pour ce site. Vérifiez aussi Android → Applications → Chrome → Autorisations → Microphone.';else if(e&&e.name==='NotFoundError')detail='Aucun microphone n’a été trouvé sur cet appareil.';else if(e&&e.name==='NotReadableError')detail='Le microphone est peut-être déjà utilisé par une autre application. Fermez-la puis réessayez.';setMicStatus('bad','Microphone non autorisé',detail);if(userAction)toast('Autorisation du microphone nécessaire');return false}}function toggleVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){setMicStatus('warn','Reconnaissance vocale non disponible','Votre navigateur autorise peut-être le microphone, mais ne fournit pas la reconnaissance vocale. Utilisez le champ texte ci-dessous.');return}if(!micReady){checkMicrophone(true).then(ok=>{if(ok)startRecognition(SR)});return}if(recognition){recognition.stop();recognition=null;return}startRecognition(SR)}function startRecognition(SR){try{recognition=new SR();recognition.lang='fr-FR';recognition.continuous=false;recognition.interimResults=false;recognition.onstart=()=>{const b=document.getElementById('voiceBtn');if(b)b.classList.add('live');const s=document.getElementById('voiceState');if(s)s.textContent='Je vous écoute…';setMicStatus('ok','Microphone actif','Parlez maintenant.')};recognition.onresult=e=>{const text=e.results&&e.results[0]&&e.results[0][0]?e.results[0][0].transcript:'';if(text)voiceAsk(text)};recognition.onerror=e=>{let msg='Erreur de reconnaissance vocale : '+e.error;if(e.error==='not-allowed'||e.error==='service-not-allowed'){micReady=false;msg='Le navigateur a refusé l’accès au microphone. Vérifiez les autorisations de Chrome et du site.';setMicStatus('bad','Microphone bloqué',msg)}else if(e.error==='audio-capture'){msg='Le microphone n’est pas accessible. Vérifiez qu’aucune autre application ne l’utilise.';setMicStatus('bad','Microphone inaccessible',msg)}else{setMicStatus('warn','Reconnaissance interrompue',msg+' Vous pouvez réessayer.')}toast(msg)};recognition.onend=()=>{const b=document.getElementById('voiceBtn');if(b)b.classList.remove('live');const s=document.getElementById('voiceState');if(s)s.textContent=micReady?'Microphone prêt':'Micro non testé';recognition=null};recognition.start()}catch(e){recognition=null;setMicStatus('bad','Impossible de démarrer le micro','Le navigateur n’a pas pu démarrer la reconnaissance vocale. Utilisez Chrome et vérifiez l’autorisation du microphone.')}}
 function renderVoice(){if(document.getElementById('voiceLog')&&!document.getElementById('voiceLog').dataset.ready){document.getElementById('voiceLog').dataset.ready='1';if(navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'microphone'}).then(p=>{if(p.state==='granted'){micReady=true;setMicStatus('ok','Microphone déjà autorisé','MARYSE peut vous écouter. Appuyez sur 🎙️ pour parler.')}else if(p.state==='denied'){setMicStatus('bad','Microphone bloqué','Le navigateur bloque actuellement le microphone. Autorisez-le dans les paramètres du site et d’Android.')}}).catch(()=>{})}}}
 function exportData(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='maryse-sauvegarde.json';a.click();URL.revokeObjectURL(a.href);toast('Sauvegarde exportée')};function importData(){document.getElementById('importFile').click()}function doImport(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);save();location.reload()}catch(e){toast('Fichier invalide')}};r.readAsText(f)}function resetData(){if(confirm('Supprimer toutes les données de test ?')){localStorage.removeItem(KEY);location.reload()}}
-init();
+// --- OK MARYSE : activation vocale ---
+let wakeRecognition = null;
+let wakeListening = false;
+
+function startWakeWord() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+
+  if (wakeRecognition) {
+    try { wakeRecognition.stop(); } catch(e) {}
+  }
+
+  wakeRecognition = new SR();
+  wakeRecognition.lang = 'fr-FR';
+  wakeRecognition.continuous = true;
+  wakeRecognition.interimResults = false;
+
+  wakeRecognition.onresult = function(e) {
+    const result = e.results[e.results.length - 1];
+    if (!result || !result[0]) return;
+
+    const text = result[0].transcript.trim();
+    const lower = text.toLowerCase();
+
+    if (lower.includes('ok maryse') || lower.includes('okay maryse')) {
+      const demande = text
+        .replace(/ok\s*maryse/ig, '')
+        .replace(/okay\s*maryse/ig, '')
+        .trim();
+
+      if (demande) {
+        voiceAsk(demande);
+      } else {
+        speak('Oui, je vous écoute.');
+        addVoice('MARYSE', 'Oui, je vous écoute.');
+      }
+    }
+  };
+
+  wakeRecognition.onend = function() {
+    wakeRecognition = null;
+    wakeListening = false;
+
+    setTimeout(() => {
+      if (!wakeListening) startWakeWord();
+    }, 1000);
+  };
+
+  try {
+    wakeListening = true;
+    wakeRecognition.start();
+  } catch(e) {}
+ }init();setTimeout(startWakeWord, 1500);
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js');

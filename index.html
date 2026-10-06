@@ -1443,113 +1443,568 @@ function renderVoice(v){
     }).catch(()=>{});
   }
 }
+/* =========================================================
+   MARYSE — CONVERSATION VOCALE CONTINUE
+   ========================================================= */
+
+let recognition = null;
+let micReady = false;
+let conversationActive = false;
+let restartingRecognition = false;
+let maryseSpeaking = false;
 
 function setMicStatus(title,detail){
   const el=document.getElementById("micStatus");
-  if(el)el.innerHTML="<strong>"+esc(title)+"</strong><br>"+esc(detail);
+  const state=document.getElementById("voiceState");
+
+  if(el){
+    el.innerHTML="<strong>"+esc(title)+"</strong><br>"+esc(detail);
+  }
+
+  if(state){
+    state.textContent=conversationActive
+      ?"Conversation active"
+      :"Microphone prêt";
+  }
 }
 
 async function checkMicrophone(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    setMicStatus("🔴 Microphone indisponible","Utilisez Chrome sur la version HTTPS de MARYSE.");
+  if(!navigator.mediaDevices ||
+     !navigator.mediaDevices.getUserMedia){
+
+    setMicStatus(
+      "🔴 Microphone indisponible",
+      "Utilisez Chrome sur la version HTTPS de MARYSE."
+    );
     return false;
   }
+
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const stream=
+      await navigator.mediaDevices.getUserMedia({audio:true});
+
     stream.getTracks().forEach(t=>t.stop());
+
     micReady=true;
-    setMicStatus("🟢 Microphone autorisé","MARYSE peut maintenant vous écouter.");
+
+    setMicStatus(
+      "🟢 Microphone autorisé",
+      "MARYSE peut maintenant vous écouter."
+    );
+
     return true;
+
   }catch(e){
-    setMicStatus("🔴 Autorisation nécessaire","Autorisez le microphone pour Chrome puis réessayez.");
+
+    micReady=false;
+
+    setMicStatus(
+      "🔴 Autorisation nécessaire",
+      "Autorisez le microphone pour Chrome puis réessayez."
+    );
+
     return false;
   }
 }
 
-function toggleVoice(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){
-    toast("La reconnaissance vocale n'est pas disponible dans ce navigateur.");
-    return;
-  }
-  if(recognition){
-    recognition.stop();
-    return;
-  }
-  if(!micReady){
-    checkMicrophone().then(ok=>{if(ok)startRecognition(SR)});
-  }else startRecognition(SR);
-}
 
-function startRecognition(SR){
-  try{
-    recognition=new SR();
-    recognition.lang="fr-FR";
-    recognition.continuous=false;
-    recognition.interimResults=false;
-
-    recognition.onstart=()=>{
-      document.getElementById("voiceOrb")?.classList.add("live");
-      document.getElementById("voiceState").textContent="Je vous écoute…";
-      setMicStatus("🟢 Microphone actif","Parlez maintenant.");
-    };
-
-    recognition.onresult=e=>{
-      const text=e.results?.[0]?.[0]?.transcript||"";
-      if(text)voiceAsk(text);
-    };
-
-    recognition.onerror=e=>{
-      setMicStatus("🟠 Reconnaissance interrompue","Vous pouvez réessayer.");
-      toast("Reconnaissance vocale : "+e.error);
-    };
-
-    recognition.onend=()=>{
-      recognition=null;
-      document.getElementById("voiceOrb")?.classList.remove("live");
-      document.getElementById("voiceState").textContent=micReady?"Microphone prêt":"Microphone non testé";
-    };
-
-    recognition.start();
-  }catch(e){
-    recognition=null;
-    toast("Impossible de démarrer le microphone.");
-  }
-}
-
-function sendTypedVoice(){
-  const el=document.getElementById("voiceText");
-  if(!el||!el.value.trim())return;
-  voiceAsk(el.value.trim());
-  el.value="";
-}
-
-function addVoice(who,text){
-  const log=document.getElementById("voiceLog");
-  if(!log)return;
-  const b=document.createElement("div");
-  b.className="bubble "+(who==="Vous"?"me":"maryse");
-  b.innerHTML="<small>"+esc(who)+"</small>"+esc(text);
-  log.appendChild(b);
-  log.scrollTop=log.scrollHeight;
-}
+/* =========================================================
+   SYNTHÈSE VOCALE DE MARYSE
+   Après chaque réponse, MARYSE relance automatiquement l'écoute.
+   ========================================================= */
 
 function speak(t){
-  if(!("speechSynthesis" in window))return;
+
+  if(!("speechSynthesis" in window)){
+
+    if(conversationActive){
+      setTimeout(startContinuousListening,500);
+    }
+
+    return;
+  }
+
   speechSynthesis.cancel();
+
+  maryseSpeaking=true;
+
   const u=new SpeechSynthesisUtterance(t);
+
   u.lang="fr-FR";
   u.rate=.95;
   u.pitch=1.05;
   u.volume=1;
+
   const voices=speechSynthesis.getVoices();
-  const female=voices.find(v=>v.lang.toLowerCase().startsWith("fr")&&/female|femme|google français|microsoft/i.test(v.name));
-  const french=voices.find(v=>v.lang.toLowerCase().startsWith("fr"));
+
+  const female=voices.find(v=>
+    v.lang.toLowerCase().startsWith("fr") &&
+    /female|femme|google français|microsoft/i.test(v.name)
+  );
+
+  const french=voices.find(v=>
+    v.lang.toLowerCase().startsWith("fr")
+  );
+
   if(female)u.voice=female;
   else if(french)u.voice=french;
+
+  u.onend=function(){
+
+    maryseSpeaking=false;
+
+    if(conversationActive){
+      setTimeout(startContinuousListening,350);
+    }
+  };
+
+  u.onerror=function(){
+
+    maryseSpeaking=false;
+
+    if(conversationActive){
+      setTimeout(startContinuousListening,500);
+    }
+  };
+
   speechSynthesis.speak(u);
 }
 
+
+/* =========================================================
+   ÉCOUTE CONTINUE
+   ========================================================= */
+
+function startContinuousListening(){
+
+  if(!conversationActive)return;
+  if(maryseSpeaking)return;
+  if(restartingRecognition)return;
+
+  const SR=
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if(!SR){
+
+    setMicStatus(
+      "🟠 Reconnaissance vocale indisponible",
+      "Votre navigateur ne fournit pas la reconnaissance vocale."
+    );
+
+    conversationActive=false;
+
+    return;
+  }
+
+  if(recognition){
+
+    try{
+      recognition.stop();
+    }catch(e){}
+
+    recognition=null;
+  }
+
+  restartingRecognition=true;
+
+  setTimeout(function(){
+
+    restartingRecognition=false;
+
+    if(!conversationActive)return;
+
+    try{
+
+      recognition=new SR();
+
+      recognition.lang="fr-FR";
+      recognition.continuous=false;
+      recognition.interimResults=false;
+      recognition.maxAlternatives=1;
+
+
+      recognition.onstart=function(){
+
+        setMicStatus(
+          "🟢 Conversation active",
+          "MARYSE vous écoute…"
+        );
+
+        const state=
+          document.getElementById("voiceState");
+
+        if(state){
+          state.textContent="Je vous écoute…";
+        }
+
+        const orb=
+          document.getElementById("voiceOrb");
+
+        if(orb){
+          orb.classList.add("live");
+        }
+      };
+
+
+      recognition.onresult=function(e){
+
+        if(!conversationActive)return;
+
+        const result=
+          e.results &&
+          e.results[0] &&
+          e.results[0][0];
+
+        if(!result)return;
+
+        const text=
+          result.transcript.trim();
+
+        if(!text)return;
+
+        const lower=
+          text.toLowerCase();
+
+
+        /* Commandes d'arrêt */
+
+        if(
+          lower.includes("maryse arrête") ||
+          lower.includes("maryse stop") ||
+          lower.includes("arrête la conversation") ||
+          lower.includes("arrêter la conversation") ||
+          lower==="stop"
+        ){
+
+          stopContinuousConversation();
+
+          speak(
+            "D’accord, j’arrête la conversation."
+          );
+
+          return;
+        }
+
+
+        /* Envoi vers le cerveau conversationnel existant */
+
+        voiceAsk(text);
+      };
+
+
+      recognition.onerror=function(e){
+
+        recognition=null;
+
+        const error=
+          e && e.error ? e.error : "";
+
+
+        if(
+          error==="not-allowed" ||
+          error==="service-not-allowed"
+        ){
+
+          micReady=false;
+
+          setMicStatus(
+            "🔴 Microphone bloqué",
+            "Autorisez le microphone dans Chrome puis relancez la conversation."
+          );
+
+          conversationActive=false;
+
+          return;
+        }
+
+
+        if(error==="audio-capture"){
+
+          setMicStatus(
+            "🔴 Microphone inaccessible",
+            "Vérifiez qu’aucune autre application n’utilise le microphone."
+          );
+
+          conversationActive=false;
+
+          return;
+        }
+
+
+        if(conversationActive){
+
+          setTimeout(
+            startContinuousListening,
+            600
+          );
+        }
+      };
+
+
+      recognition.onend=function(){
+
+        recognition=null;
+
+        const orb=
+          document.getElementById("voiceOrb");
+
+        if(orb){
+          orb.classList.remove("live");
+        }
+
+        /*
+          Si MARYSE vient de finir son écoute,
+          elle recommence automatiquement.
+        */
+
+        if(
+          conversationActive &&
+          !maryseSpeaking
+        ){
+
+          setTimeout(
+            startContinuousListening,
+            350
+          );
+        }
+      };
+
+
+      recognition.start();
+
+    }catch(e){
+
+      recognition=null;
+
+      if(conversationActive){
+
+        setTimeout(
+          startContinuousListening,
+          800
+        );
+      }
+    }
+
+  },100);
+}
+
+
+/* =========================================================
+   BOUTON MICRO
+   ========================================================= */
+
+async function toggleVoice(){
+
+  /* Si une conversation est déjà active :
+     le bouton sert à l'arrêter. */
+
+  if(conversationActive){
+
+    stopContinuousConversation();
+
+    return;
+  }
+
+
+  /* Vérification du microphone */
+
+  const ok=
+    micReady ||
+    await checkMicrophone();
+
+  if(!ok)return;
+
+
+  /* Démarrage de la conversation */
+
+  conversationActive=true;
+
+  setMicStatus(
+    "🟢 Conversation active",
+    "MARYSE est prête. Vous pouvez parler naturellement."
+  );
+
+  const state=
+    document.getElementById("voiceState");
+
+  if(state){
+    state.textContent="Conversation active";
+  }
+
+  const orb=
+    document.getElementById("voiceOrb");
+
+  if(orb){
+    orb.classList.add("active");
+  }
+
+
+  /* MARYSE parle puis écoute automatiquement */
+
+  speak(
+    "Bonjour, je suis MARYSE. Je vous écoute."
+  );
+}
+
+
+/* =========================================================
+   ARRÊT DE LA CONVERSATION
+   ========================================================= */
+
+function stopContinuousConversation(){
+
+  conversationActive=false;
+
+  restartingRecognition=false;
+
+
+  if(recognition){
+
+    try{
+      recognition.stop();
+    }catch(e){}
+
+    recognition=null;
+  }
+
+
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+  }
+
+  maryseSpeaking=false;
+
+
+  const orb=
+    document.getElementById("voiceOrb");
+
+  if(orb){
+    orb.classList.remove("live");
+    orb.classList.remove("active");
+  }
+
+
+  const state=
+    document.getElementById("voiceState");
+
+  if(state){
+    state.textContent="Conversation arrêtée";
+  }
+
+
+  setMicStatus(
+    "🟢 Microphone prêt",
+    "Appuyez sur 🎙️ pour reprendre la conversation."
+  );
+}
+
+
+/* =========================================================
+   SAISIE TEXTE
+   ========================================================= */
+
+function sendTypedVoice(){
+
+  const el=
+    document.getElementById("voiceText");
+
+  if(!el || !el.value.trim())return;
+
+  voiceAsk(el.value.trim());
+
+  el.value="";
+}
+
+
+/* =========================================================
+   HISTORIQUE DE CONVERSATION
+   ========================================================= */
+
+function addVoice(who,text){
+
+  const log=
+    document.getElementById("voiceLog");
+
+  if(!log)return;
+
+  const b=
+    document.createElement("div");
+
+  b.className=
+    "bubble "+(who==="Vous"?"me":"maryse");
+
+  b.innerHTML=
+    "<small>"+esc(who)+"</small>"+
+    esc(text);
+
+  log.appendChild(b);
+
+  log.scrollTop=
+    log.scrollHeight;
+}
+
+
+/* =========================================================
+   AFFICHAGE DU MODULE VOCAL
+   ========================================================= */
+
+function renderVoice(){
+
+  if(
+    navigator.permissions &&
+    navigator.permissions.query
+  ){
+
+    navigator.permissions
+      .query({name:"microphone"})
+      .then(function(p){
+
+        if(p.state==="granted"){
+
+          micReady=true;
+
+          setMicStatus(
+            "🟢 Microphone déjà autorisé",
+            "Appuyez sur 🎙️ pour démarrer la conversation."
+          );
+
+        }else if(p.state==="denied"){
+
+          setMicStatus(
+            "🔴 Microphone bloqué",
+            "Autorisez le microphone dans les réglages du navigateur."
+          );
+        }
+
+      })
+      .catch(function(){});
+  }
+}
+
+
+/* =========================================================
+   NETTOYAGE EN QUITTANT LA PAGE
+   ========================================================= */
+
+window.addEventListener(
+  "beforeunload",
+  function(){
+
+    conversationActive=false;
+
+    if(recognition){
+
+      try{
+        recognition.stop();
+      }catch(e){}
+    }
+
+    if("speechSynthesis" in window){
+      speechSynthesis.cancel();
+    }
+  }
+);
 function maryse(text){
   addVoice("MARYSE",text);
   speak(text);

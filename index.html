@@ -202,6 +202,327 @@ tr:last-child td{border-bottom:0}
   .field.full{grid-column:auto}
   .hero h1{font-size:29px}
   .voice-input{flex-direction:column}
+}/* =========================================================
+   MARYSE — IDENTITÉ VISUELLE CHALEUREUSE & PREMIUM
+   ========================================================= */
+
+:root{
+  --bg:#f5f1e8;
+  --surface:#fffdf8;
+  --surface-soft:#f8f5ed;
+  --text:#29312d;
+  --muted:#6f756f;
+  --sage:#71856f;
+  --sage-dark:#4f6752;
+  --sage-light:#e4ebe0;
+  --terracotta:#b96f55;
+  --terracotta-light:#f1ddd4;
+  --copper:#a8754d;
+  --gold:#b8945c;
+  --border:#e3ddd1;
+  --shadow:0 8px 25px rgba(67,61,48,.08);
+  --shadow-hover:0 12px 30px rgba(67,61,48,.13);
+}
+
+html,body{
+  background:var(--bg)!important;
+  color:var(--text)!important;
+}
+
+body{
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+}
+
+header,
+.topbar,
+.navbar,
+.app-header{
+  background:rgba(255,253,248,.96)!important;
+  color:var(--text)!important;
+  border-bottom:1px solid var(--border)!important;
+  box-shadow:0 3px 18px rgba(60,55,45,.06)!important;
+  backdrop-filter:blur(10px);
+}
+
+header h1,
+header .logo,
+.brand,
+.logo{
+  color:var(--sage-dark)!important;
+  font-weight:800!important;
+  letter-spacing:.02em;
+}
+
+.subtitle,
+.tagline,
+.brand-subtitle{
+  color:var(--terracotta)!important;
+}
+
+.card,
+.panel,
+.module,
+.dashboard-card,
+.stat-card,
+section.card{
+  background:var(--surface)!important;
+  color:var(--text)!important;
+  border:1px solid var(--border)!important;
+  border-radius:18px!important;
+  box-shadow:var(--shadow)!important;
+}
+
+.card:hover,
+.panel:hover,
+.module:hover,
+.dashboard-card:hover{
+  box-shadow:var(--shadow-hover)!important;
+  transform:translateY(-1px);
+  transition:.2s ease;
+}
+
+h1,h2,h3,h4{
+  color:var(--text)!important;
+}
+
+.small,
+.muted,
+.help,
+.description,
+.card p{
+  color:var(--muted)!important;
+}
+
+button,
+.btn{
+  border-radius:12px!important;
+  font-weight:650!important;
+  transition:.18s ease!important;
+}
+
+button:hover,
+.btn:hover{
+  transform:translateY(-1px);
+}
+
+button.primary,
+.btn-primary,
+.primary{
+  background:var(--sage)!important;
+  color:#fff!important;
+  border:1px solid var(--sage)!important;
+  box-shadow:0 5px 14px rgba(79,103,82,.18)!important;
+}
+
+button.primary:hover,
+.btn-primary:hover,
+.primary:hover{
+  background:var(--sage-dark)!important;
+}
+
+button.accent,
+.btn-accent,
+.terracotta{
+  background:var(--terracotta)!important;
+  color:#fff!important;
+  border-color:var(--terracotta)!important;
+}
+
+nav,
+.nav,
+.sidebar{
+  background:#eee9dd!important;
+  border-color:var(--border)!important;
+}
+
+nav a,
+.nav a,
+.sidebar a{
+  color:var(--text)!important;
+  border-radius:11px!important;
+}
+
+nav a:hover,
+.nav a:hover,
+.sidebar a:hover{
+  background:var(--sage-light)!important;
+  color:var(--sage-dark)!important;
+}
+
+nav a.active,
+.nav a.active,
+.sidebar a.active{
+  background:var(--sage)!important;
+  color:#fff!important;
+}
+
+.module-card,
+.menu-card,
+.feature-card{
+  background:var(--surface)!important;
+  border:1px solid var(--border)!important;
+  border-radius:18px!important;
+  box-shadow:var(--shadow)!important;
+}
+
+.module-card:hover,
+.menu-card:hover,
+.feature-card:hover{
+  border-color:#c8d2c5!important;
+  box-shadow:var(--shadow-hover)!important;
+}
+
+.icon,
+.module-icon,
+.menu-icon{
+  background:var(--sage-light)!important;
+  color:var(--sage-dark)!important;
+  border-radius:14px!important;
+}
+
+.voice-card,
+.voice-panel,
+.voice-box{
+  background:linear-gradient(135deg,#edf2e9,#fffaf1)!important;
+  border:1px solid #d9e1d4!important;
+  border-radius:22px!important;
+  box-shadow:0 10px 30px rgba(73,88,69,.10)!important;
+}
+
+.voice-card h2,
+.voice-panel h2,
+.voice-box h2{
+  color:var(--sage-dark)!important;
+}
+
+#voiceBtn{
+  background:var(--terracotta)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 8px 22px rgba(185,111,85,.25)!important;
+}
+
+#voiceBtn:hover{
+  background:#a75f47!important;
+}
+
+.stat,
+.kpi,
+.metric{
+  background:var(--surface)!important;
+  border:1px solid var(--border)!important;
+}
+
+.stat-value,
+.kpi-value,
+.metric-value{
+  color:var(--sage-dark)!important;
+}
+
+input,
+textarea,
+select{
+  background:#fffefa!important;
+  color:var(--text)!important;
+  border:1px solid #d9d3c7!important;
+  border-radius:10px!important;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  outline:none!important;
+  border-color:var(--sage)!important;
+  box-shadow:0 0 0 3px rgba(113,133,111,.13)!important;
+}
+
+table{
+  background:var(--surface)!important;
+  color:var(--text)!important;
+  border-color:var(--border)!important;
+}
+
+th{
+  background:#eee9dd!important;
+  color:var(--sage-dark)!important;
+}
+
+td{
+  border-color:var(--border)!important;
+}
+
+.badge,
+.tag,
+.pill{
+  background:var(--sage-light)!important;
+  color:var(--sage-dark)!important;
+  border-radius:999px!important;
+}
+
+.badge.warning,
+.tag.warning{
+  background:var(--terracotta-light)!important;
+  color:#92513e!important;
+}
+
+.modal,
+.dialog{
+  background:rgba(255,253,248,.98)!important;
+  color:var(--text)!important;
+  border:1px solid var(--border)!important;
+  border-radius:20px!important;
+  box-shadow:0 20px 60px rgba(40,36,28,.18)!important;
+}
+
+footer{
+  background:#eee9dd!important;
+  color:var(--muted)!important;
+  border-top:1px solid var(--border)!important;
+}
+
+footer strong{
+  color:var(--sage-dark)!important;
+}
+
+.toast{
+  background:var(--sage-dark)!important;
+  color:#fff!important;
+  border-radius:12px!important;
+  box-shadow:var(--shadow-hover)!important;
+}
+
+@media(max-width:700px){
+  body{
+    background:var(--bg)!important;
+  }
+
+  .card,
+  .panel,
+  .module,
+  .dashboard-card{
+    border-radius:15px!important;
+  }
+
+  button,
+  .btn{
+    min-height:44px;
+  }
+
+  h1{
+    font-size:1.65rem;
+  }
+
+  h2{
+    font-size:1.3rem;
+  }
+}
+
+.gold-accent{
+  color:var(--gold)!important;
+}
+
+.copper-accent{
+  color:var(--copper)!important;
 }
 </style>
 </head>

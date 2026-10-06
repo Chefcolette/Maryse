@@ -73,16 +73,27 @@ function voiceAsk(q){
    voiceContext={type:'supplier',data:{name},step:'form'}; ans=name?'J’ouvre la fiche fournisseur « '+name+' ». Vérifiez les informations avant d’enregistrer.':'J’ouvre une nouvelle fiche fournisseur. Quel est son nom ?';
    action=()=>{openSupplier();if(name){const a=document.getElementById('f_name');if(a)a.value=name}};
  } else if(/\b(client|cliente)\b/.test(l)){
-   const m=raw.match(/(?:client|cliente)\s+(?:nommé|nomme|appelé|appele)?\s*(.+)$/i); const name=m?m[1].trim():''; ans=name?'J’ouvre la fiche client « '+name+' ».':'J’ouvre une nouvelle fiche client.';
-   action=()=>{openClient();if(name){const a=document.getElementById('f_name');if(a)a.value=name}};
- } else if(/\b(command|commander|achats?|approvisionnement)\b/.test(l)){ans='J’ouvre les achats pour voir les besoins calculés à partir du stock.';action=()=>go('purchases');
- } else if(/\b(stock|inventaire)\b/.test(l)){ans='J’ouvre le stock et l’inventaire.';action=()=>go('stock');
- } else if(/\b(rentabilite|marge|marges|chiffre d.affaires|\bca\b)\b/.test(l)){ans='J’ouvre la gestion et la rentabilité.';action=()=>go('manage');
- } else if(/\b(aujourd.hui|planning|agenda|prestation|livraison)\b/.test(l)){ans='J’ouvre votre planning.';action=()=>go('planning');
- } else if(/\b(accueil|tableau de bord|dashboard)\b/.test(l)){ans='Je vous ramène à l’accueil.';action=()=>go('home');
- } else {ans='Je vous ai entendu. Pour cette V1, vous pouvez me demander naturellement une recette, un fournisseur, un client, les achats, le stock, la rentabilité ou le planning.';}
- addVoice('MARYSE',ans); speak(ans); const x=document.getElementById('voiceText');if(x)x.value=''; if(action)setTimeout(action,250);
-}
+   const recherche=/\b(recherche|chercher|cherche|trouve|trouver|affiche|afficher)\b/.test(l);
+   const creation=/\b(crée|creer|créer|nouveau|nouvelle|ajoute|ajouter)\b/.test(l);
+   const m=raw.match(/(?:client|cliente)\s+(?:nommé|nomme|appelé|appele)?\s*(.+)$/i);
+   const name=m?m[1].trim():'';
+
+   if(recherche&&!name){
+      voiceContext={type:'client-search',data:{},step:'name'};
+      ans='Bien sûr. Quel est le nom du client que vous recherchez ?';
+   } else if(recherche&&name){
+      voiceContext={type:'client-search',data:{name},step:'result'};
+      ans='Je recherche le client « '+name+' ».';
+      action=()=>{openClient();};
+   } else if(creation){
+      voiceContext={type:'client',data:{name},step:'form'};
+      ans=name?'J’ouvre la fiche du nouveau client « '+name+' ».':'D’accord. Quel est le nom du nouveau client ?';
+      action=()=>{openClient();if(name){const a=document.getElementById('f_name');if(a)a.value=name}};
+   } else {
+      voiceContext={type:'client',data:{name},step:'form'};
+      ans=name?'J’ouvre la fiche client « '+name+' ».':'D’accord. Quel est le nom du client ?';
+      action=()=>{openClient();if(name){const a=document.getElementById('f_name');if(a)a.value=name}};
+   }
 function addVoice(who,text){const log=document.getElementById('voiceLog');if(!log)return;log.innerHTML+=`<div class="voice-line"><b>${who} :</b> ${esc(text)}</div>`;log.scrollTop=log.scrollHeight}function speak(t){
   if(!('speechSynthesis' in window))return;
   speechSynthesis.cancel();

@@ -1,40 +1,1833 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#71856f"><link rel="manifest" href="./manifest.webmanifest"><title>MARYSE — Le copilote des métiers de bouche</title><style>
-:root{--bg:#f5f1e8;--s:#fffdf8;--soft:#eee9dd;--t:#29312d;--m:#6f756f;--g:#71856f;--gd:#4f6752;--gl:#e4ebe0;--r:#b96f55;--b:#e3ddd1}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:system-ui,-apple-system,Segoe UI,sans-serif}.top{position:sticky;top:0;background:var(--s);border-bottom:1px solid var(--b);padding:14px 18px;z-index:5}.topin{max-width:1400px;margin:auto;display:flex;align-items:center;gap:18px}.brand{font-size:1.5rem;font-weight:900;color:var(--gd)}.tag{color:var(--r);font-size:.82rem}.company{margin-left:auto;display:flex;gap:7px;align-items:center}.layout{max-width:1400px;margin:auto;display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 75px)}aside{background:var(--soft);padding:12px;border-right:1px solid var(--b)}.nav{display:block;width:100%;padding:10px;border:0;background:transparent;border-radius:10px;text-align:left;font-weight:700}.nav.active{background:var(--g);color:#fff}.nav:hover{background:var(--gl)}main{padding:22px}.head{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px}h1,h2{margin:0 0 7px}.muted{color:var(--m)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.two{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{background:var(--s);border:1px solid var(--b);border-radius:17px;padding:17px;margin-bottom:14px;box-shadow:0 8px 25px #433d3014}.kpi .v{font-size:1.7rem;font-weight:900;color:var(--gd)}.kpi .l{color:var(--m);font-size:.8rem}.actions{display:flex;flex-wrap:wrap;gap:8px}.btn{padding:9px 12px;border:1px solid var(--b);background:var(--s);border-radius:10px;font-weight:700}.primary{background:var(--g);color:white;border-color:var(--g)}.accent{background:var(--r);color:white;border-color:var(--r)}.danger{background:#fff0eb;color:#914a39}input,select,textarea{width:100%;padding:9px;border:1px solid #d9d3c7;border-radius:9px;background:#fffefa;color:var(--t)}textarea{min-height:85px}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:.8rem;color:var(--m);font-weight:700;margin-bottom:4px}.full{grid-column:1/-1}table{width:100%;border-collapse:collapse}th,td{padding:9px 6px;border-bottom:1px solid var(--b);text-align:left}th{background:var(--soft);color:var(--gd);font-size:.8rem}.badge{background:var(--gl);color:var(--gd);border-radius:20px;padding:4px 8px;font-size:.75rem}.empty{text-align:center;padding:25px;color:var(--m);border:1px dashed var(--b);border-radius:12px}.modal{display:none;position:fixed;inset:0;background:#28241c55;align-items:center;justify-content:center;padding:18px;z-index:20}.modal.open{display:flex}.dialog{width:min(700px,100%);max-height:90vh;overflow:auto;background:var(--s);border-radius:19px;padding:20px}.voice{background:linear-gradient(135deg,#edf2e9,#fffaf1);border:1px solid #d9e1d4;border-radius:20px;padding:20px}.orb{width:70px;height:70px;border:0;border-radius:50%;background:var(--r);color:white;font-size:1.5rem}.live{box-shadow:0 0 0 12px #b96f5520}.bubble{padding:10px;margin:7px 0;border-radius:13px;white-space:pre-wrap}.me{background:var(--soft);margin-left:15%}.maryse{background:var(--gl);margin-right:15%}footer{text-align:center;padding:18px;background:var(--soft);color:var(--m);font-size:.8rem}@media(max-width:800px){.layout{display:block}aside{display:flex;overflow:auto}.nav{white-space:nowrap;width:auto}.grid,.two,.form{grid-template-columns:1fr}.company{width:100%;margin-left:0}.topin{flex-wrap:wrap}.head{display:block}}
-</style></head><body>
-<header class="top"><div class="topin"><div><div class="brand">MARYSE</div><div class="tag">Le copilote des métiers de bouche</div></div><div class="company"><span class="muted">Société</span><select id="co" onchange="company=this.value;save();render()"></select><button class="btn" onclick="addCompany()">+ Société</button></div></div></header>
-<div class="layout"><aside id="nav"></aside><main id="main"></main></div><footer>© 2026 MARYSE — Tous droits réservés · Créé par Sébastien Zevaco</footer>
-<div id="modal" class="modal"><div id="dialog" class="dialog"></div></div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<title>MARYSE — Le copilote des métiers de bouche</title>
+
+<style>
+:root{
+  --bg:#0f1115;--panel:#181b21;--panel2:#20242c;--line:#303641;
+  --text:#f2f3f5;--muted:#9da4af;--accent:#d6b46a;--green:#67c587;
+  --red:#e87979;--blue:#72a9e8;--shadow:0 12px 35px rgba(0,0,0,.25)
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,Arial,sans-serif;font-size:15px
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{
+  position:sticky;top:0;z-index:50;background:rgba(15,17,21,.96);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(12px)
+}
+.head{
+  max-width:1450px;margin:auto;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:15px
+}
+.brand{font-size:27px;font-weight:800;letter-spacing:3px;color:var(--accent)}
+.tagline{font-size:12px;color:var(--muted);margin-top:2px}
+.status{font-size:12px;color:var(--green);white-space:nowrap}
+nav{
+  max-width:1450px;margin:auto;display:flex;gap:5px;padding:0 12px 10px;
+  overflow-x:auto
+}
+nav button{
+  background:transparent;border:1px solid transparent;color:var(--muted);
+  padding:9px 12px;border-radius:9px;white-space:nowrap
+}
+nav button.active,nav button:hover{
+  color:var(--text);background:var(--panel2);border-color:var(--line)
+}
+main{max-width:1450px;margin:auto;padding:20px 16px 150px}
+.view{display:none}.view.active{display:block}
+h1{font-size:25px;margin:0 0 5px}
+h2{font-size:18px;margin:0 0 15px}
+h3{font-size:15px;margin:0 0 10px}
+.subtitle{color:var(--muted);margin-bottom:20px}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px
+}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:17px;box-shadow:var(--shadow)
+}
+.kpi{font-size:28px;font-weight:800;margin-top:7px}
+.small{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.formgrid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px
+}
+input,select,textarea{
+  width:100%;background:#11141a;color:var(--text);
+  border:1px solid var(--line);border-radius:9px;padding:11px
+}
+textarea{min-height:90px;resize:vertical}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.btn{
+  border:0;border-radius:9px;padding:10px 14px;background:var(--accent);
+  color:#17130a;font-weight:700
+}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:#4b2020;color:#ffb2b2}
+.btn.green{background:#173d28;color:#a4e4b9}
+.btn.blue{background:#19334e;color:#acd0fa}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted)}
+.tablewrap{overflow:auto}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.item{
+  background:#11141a;border:1px solid var(--line);border-radius:10px;
+  padding:12px;margin-bottom:9px
+}
+.item strong{color:var(--text)}
+.badge{
+  display:inline-block;border-radius:20px;padding:4px 8px;font-size:11px;
+  background:var(--panel2);color:var(--muted)
+}
+.badge.green{color:#9ce0b1;background:#173d28}
+.badge.red{color:#ffaaaa;background:#451f1f}
+.badge.gold{color:#e6c879;background:#40351c}
+.search{max-width:400px;margin-bottom:12px}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+
+/* assistant */
+#maryseBox{
+  position:fixed;right:15px;bottom:15px;width:min(410px,calc(100vw - 30px));
+  background:#15181e;border:1px solid #454b55;border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);z-index:100
+}
+#maryseHead{
+  padding:12px 14px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center
+}
+#maryseHead strong{color:var(--accent)}
+#chat{
+  height:280px;overflow-y:auto;padding:12px
+}
+.msg{margin:7px 0;display:flex}
+.msg span{
+  max-width:88%;padding:9px 11px;border-radius:12px;line-height:1.4
+}
+.msg.maryse span{background:var(--panel2)}
+.msg.user{justify-content:flex-end}.msg.user span{background:#33415a}
+#voiceStatus{font-size:11px;color:var(--muted);padding:0 12px 7px}
+.chatbar{display:flex;gap:7px;padding:10px;border-top:1px solid var(--line)}
+.chatbar input{min-width:0}
+.mic{
+  width:44px;height:44px;border-radius:50%;border:0;
+  background:#303641;color:white;font-size:19px
+}
+.mic.on{background:#8c3030;box-shadow:0 0 0 5px rgba(200,70,70,.15)}
+.closechat{background:none;border:0;color:var(--muted)}
+.notice{
+  background:#272319;border:1px solid #514523;border-radius:10px;
+  padding:12px;color:#e5d39b;margin-bottom:15px
+}
+@media(max-width:650px){
+  .brand{font-size:23px}
+  .status{display:none}
+  main{padding:15px 10px 160px}
+  .kpi{font-size:24px}
+  th,td{padding:8px;font-size:13px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="head">
+    <div>
+      <div class="brand">MARYSE</div>
+      <div class="tagline">Le copilote des métiers de bouche</div>
+    </div>
+    <div class="status">● Version test terrain V6.1</div>
+  </div>
+
+  <nav id="nav">
+    <button data-view="accueil" class="active">Accueil</button>
+    <button data-view="societes">Sociétés</button>
+    <button data-view="clients">Clients</button>
+    <button data-view="fournisseurs">Fournisseurs</button>
+    <button data-view="recettes">Recettes</button>
+    <button data-view="stock">Stock</button>
+    <button data-view="inventaire">Inventaire</button>
+    <button data-view="agenda">Agenda</button>
+    <button data-view="achats">Achats</button>
+    <button data-view="tracabilite">Traçabilité</button>
+    <button data-view="rentabilite">Rentabilité</button>
+    <button data-view="parametres">Paramètres</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ACCUEIL -->
+<section id="accueil" class="view active">
+  <h1>Bonjour, bienvenue dans MARYSE</h1>
+  <div class="subtitle">Pilotez votre activité de restauration, traiteur et métiers de bouche.</div>
+
+  <div class="notice">
+    <strong>MARYSE Intelligence</strong><br>
+    Utilisez le microphone pour parler naturellement à Maryse.
+    Vous pouvez dire par exemple :
+    <em>« Ajoute 20 kilos de pommes de terre au stock »</em>,
+    <em>« J'ai une prestation samedi à 100 personnes »</em>
+    ou <em>« Combien me coûte cette recette ? »</em>.
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="small">Chiffre d'affaires</div><div class="kpi" id="kpiCA">0 €</div></div>
+    <div class="card"><div class="small">Achats</div><div class="kpi" id="kpiAchats">0 €</div></div>
+    <div class="card"><div class="small">Marge estimée</div><div class="kpi" id="kpiMarge">0 €</div></div>
+    <div class="card"><div class="small">Prestations</div><div class="kpi" id="kpiPrestations">0</div></div>
+  </div>
+
+  <div class="grid" style="margin-top:15px">
+    <div class="card">
+      <h2>Accès rapide</h2>
+      <div class="actions">
+        <button class="btn" onclick="showView('clients')">+ Client</button>
+        <button class="btn" onclick="showView('fournisseurs')">+ Fournisseur</button>
+        <button class="btn" onclick="showView('recettes')">+ Recette</button>
+        <button class="btn" onclick="showView('agenda')">+ Prestation</button>
+        <button class="btn" onclick="showView('stock')">+ Stock</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>À surveiller</h2>
+      <div id="alerts"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SOCIETES -->
+<section id="societes" class="view">
+  <h1>Sociétés & établissements</h1>
+  <div class="subtitle">Séparez vos différentes sociétés, restaurants ou activités.</div>
+
+  <div class="card">
+    <h2>Nouvelle société / établissement</h2>
+    <div class="formgrid">
+      <div><label>Nom</label><input id="socNom" placeholder="Chez Colette"></div>
+      <div><label>Activité</label><input id="socActivite" placeholder="Restaurant / Traiteur"></div>
+      <div><label>Adresse</label><input id="socAdresse"></div>
+      <div><label>SIRET</label><input id="socSiret"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addSociete()">Ajouter</button></div>
+  </div>
+  <div class="card" style="margin-top:15px"><div id="societesList"></div></div>
+</section>
+
+
+<!-- CLIENTS -->
+<section id="clients" class="view">
+  <h1>Clients</h1>
+  <div class="subtitle">Clients particuliers, entreprises et collectivités.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Nom / société</label><input id="cliNom"></div>
+      <div><label>Téléphone</label><input id="cliTel" type="tel"></div>
+      <div><label>Email</label><input id="cliEmail" type="email"></div>
+      <div><label>Adresse</label><input id="cliAdresse"></div>
+      <div><label>Type</label>
+        <select id="cliType"><option>Particulier</option><option>Professionnel</option><option>Collectivité</option></select>
+      </div>
+      <div><label>Notes</label><input id="cliNote"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addClient()">Ajouter le client</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <input class="search" id="clientSearch" placeholder="Rechercher un client..." oninput="renderClients()">
+    <div id="clientsList"></div>
+  </div>
+</section>
+
+
+<!-- FOURNISSEURS -->
+<section id="fournisseurs" class="view">
+  <h1>Fournisseurs</h1>
+  <div class="subtitle">Contacts, produits, références et prix d'achat.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Fournisseur</label><input id="fourNom"></div>
+      <div><label>Contact</label><input id="fourContact"></div>
+      <div><label>Téléphone</label><input id="fourTel"></div>
+      <div><label>Email</label><input id="fourEmail"></div>
+      <div><label>Produits proposés</label><input id="fourProduits" placeholder="Viandes, poissons..."></div>
+      <div><label>Références / catalogue</label><input id="fourRefs" placeholder="Codes fournisseur"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addFournisseur()">Ajouter</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px"><div id="fournisseursList"></div></div>
+</section>
+
+
+<!-- RECETTES -->
+<section id="recettes" class="view">
+  <h1>Recettes & fiches techniques</h1>
+  <div class="subtitle">Coût matière, portions, matériel et prix de vente.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Nom de la recette</label><input id="recNom" placeholder="Tataki de bœuf"></div>
+      <div><label>Nombre de portions</label><input id="recPortions" type="number" value="10"></div>
+      <div><label>Prix de vente / portion (€)</label><input id="recPrix" type="number" step="0.01"></div>
+      <div><label>Photo de présentation</label><input id="recPhoto" type="file" accept="image/*" capture="environment"></div>
+      <div><label>Ingrédients</label><textarea id="recIngredients" placeholder="Bœuf 1,5 kg&#10;Huile 10 cl&#10;Sésame 100 g..."></textarea></div>
+      <div><label>Matériel / ustensiles</label><textarea id="recMateriel" placeholder="Plancha, couteau, bac GN..."></textarea></div>
+      <div><label>Préparation</label><textarea id="recPreparation"></textarea></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addRecette()">Enregistrer la recette</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <div id="recettesList"></div>
+  </div>
+</section>
+
+
+<!-- STOCK -->
+<section id="stock" class="view">
+  <h1>Stock</h1>
+  <div class="subtitle">Produits, quantités, seuils et valeur de stock.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Produit</label><input id="stockNom" placeholder="Saumon fumé"></div>
+      <div><label>Catégorie</label><input id="stockCat" placeholder="Poisson"></div>
+      <div><label>Quantité</label><input id="stockQte" type="number" step="0.01"></div>
+      <div><label>Unité</label>
+        <select id="stockUnite"><option>kg</option><option>g</option><option>L</option><option>cl</option><option>pièce</option><option>carton</option><option>colis</option></select>
+      </div>
+      <div><label>Prix d'achat unitaire (€)</label><input id="stockPrix" type="number" step="0.01"></div>
+      <div><label>Seuil d'alerte</label><input id="stockSeuil" type="number" step="0.01"></div>
+      <div><label>Référence / code</label><input id="stockRef"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addStock()">Ajouter au stock</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <input class="search" id="stockSearch" placeholder="Rechercher un produit..." oninput="renderStock()">
+    <div id="stockList"></div>
+  </div>
+</section>
+
+
+<!-- INVENTAIRE -->
+<section id="inventaire" class="view">
+  <h1>Inventaire</h1>
+  <div class="subtitle">Comparez le stock théorique avec le stock réellement constaté.</div>
+
+  <div class="notice">
+    La caméra permet de photographier une étiquette ou un produit.
+    Les douchettes USB/Bluetooth qui fonctionnent comme un clavier peuvent également être utilisées.
+  </div>
+
+  <div class="card">
+    <h2>Scanner / photographier</h2>
+    <input id="invPhoto" type="file" accept="image/*" capture="environment">
+    <div id="invPhotoPreview" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Produit</th><th>Théorique</th><th>Réel</th><th>Écart</th><th>Action</th></tr></thead>
+        <tbody id="inventaireTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- AGENDA -->
+<section id="agenda" class="view">
+  <h1>Agenda</h1>
+  <div class="subtitle">Prestations, livraisons, événements et rappels.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Date</label><input id="evtDate" type="date"></div>
+      <div><label>Heure</label><input id="evtHeure" type="time"></div>
+      <div><label>Type</label>
+        <select id="evtType"><option>Prestation</option><option>Livraison</option><option>Réunion</option><option>Administratif</option><option>Privé</option></select>
+      </div>
+      <div><label>Priorité</label>
+        <select id="evtPriorite"><option>Normale</option><option>Importante</option><option>Urgente</option></select>
+      </div>
+      <div><label>Intitulé</label><input id="evtNom"></div>
+      <div><label>Nombre de personnes</label><input id="evtPersonnes" type="number"></div>
+      <div><label>Client</label><input id="evtClient"></div>
+      <div><label>Chiffre d'affaires prévu (€)</label><input id="evtCA" type="number" step="0.01"></div>
+      <div><label>Notes</label><textarea id="evtNote"></textarea></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addEvent()">Ajouter à l'agenda</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <div id="agendaList"></div>
+  </div>
+</section>
+
+
+<!-- ACHATS -->
+<section id="achats" class="view">
+  <h1>Achats</h1>
+  <div class="subtitle">Suivez vos commandes et comparez les prix fournisseurs.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Date</label><input id="achDate" type="date"></div>
+      <div><label>Fournisseur</label><input id="achFournisseur"></div>
+      <div><label>Produit</label><input id="achProduit"></div>
+      <div><label>Quantité</label><input id="achQte" type="number" step="0.01"></div>
+      <div><label>Prix unitaire (€)</label><input id="achPrix" type="number" step="0.01"></div>
+      <div><label>Référence</label><input id="achRef"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addAchat()">Enregistrer l'achat</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <div id="achatsList"></div>
+  </div>
+</section>
+
+
+<!-- TRACABILITE -->
+<section id="tracabilite" class="view">
+  <h1>Traçabilité</h1>
+  <div class="subtitle">Photos, lots, étiquettes, livraisons et anomalies.</div>
+
+  <div class="card">
+    <div class="formgrid">
+      <div><label>Date</label><input id="trDate" type="date"></div>
+      <div><label>Produit</label><input id="trProduit"></div>
+      <div><label>Lot</label><input id="trLot"></div>
+      <div><label>Fournisseur</label><input id="trFournisseur"></div>
+      <div><label>Type</label>
+        <select id="trType"><option>Étiquette</option><option>Lot</option><option>Livraison</option><option>Casse</option><option>Produit endommagé</option><option>Anomalie</option></select>
+      </div>
+      <div><label>Photo</label><input id="trPhoto" type="file" accept="image/*" capture="environment"></div>
+      <div><label>Observation</label><textarea id="trNote"></textarea></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="addTrace()">Archiver</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px"><div id="traceList"></div></div>
+</section>
+
+
+<!-- RENTABILITE -->
+<section id="rentabilite" class="view">
+  <h1>Rentabilité</h1>
+  <div class="subtitle">Calculez rapidement vos coûts et marges.</div>
+
+  <div class="card">
+    <h2>Calculateur de prestation</h2>
+    <div class="formgrid">
+      <div><label>Nombre de personnes</label><input id="mPers" type="number" value="100"></div>
+      <div><label>Prix de vente / personne TTC (€)</label><input id="mPrix" type="number" step="0.01" value="30"></div>
+      <div><label>Coût matières / personne (€)</label><input id="mMatiere" type="number" step="0.01" value="10"></div>
+      <div><label>Personnel total (€)</label><input id="mPersonnel" type="number" step="0.01" value="500"></div>
+      <div><label>Autres coûts (€)</label><input id="mAutres" type="number" step="0.01" value="200"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="calculerMarge()">Calculer</button></div>
+    <div id="margeResult" style="margin-top:15px"></div>
+  </div>
+
+  <div class="grid" style="margin-top:15px">
+    <div class="card"><div class="small">CA prestations</div><div class="kpi" id="rentCA">0 €</div></div>
+    <div class="card"><div class="small">Total achats</div><div class="kpi" id="rentAchats">0 €</div></div>
+    <div class="card"><div class="small">Marge théorique</div><div class="kpi" id="rentMarge">0 €</div></div>
+  </div>
+</section>
+
+
+<!-- PARAMETRES -->
+<section id="parametres" class="view">
+  <h1>Paramètres</h1>
+  <div class="subtitle">Configuration et sauvegarde de vos données.</div>
+
+  <div class="card">
+    <h2>Maryse</h2>
+    <div class="formgrid">
+      <div><label>Nom affiché</label><input id="paramNom" value="MARYSE"></div>
+      <div><label>Activité principale</label><input id="paramActivite" placeholder="Restaurant / Traiteur"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="saveParams()">Enregistrer</button></div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <h2>Sauvegarde</h2>
+    <p class="small">Les données de cette version sont enregistrées dans le navigateur de l'appareil.</p>
+    <div class="actions">
+      <button class="btn blue" onclick="exportData()">Exporter mes données</button>
+      <label class="btn secondary" style="display:inline-block;width:auto">
+        Importer des données
+        <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+      </label>
+      <button class="btn danger" onclick="resetData()">Effacer toutes les données</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <h2>Fonctions vocales</h2>
+    <p class="small">
+      La reconnaissance vocale utilise le moteur vocal du navigateur.
+      Pour une utilisation optimale sur téléphone, autorisez le microphone et utilisez HTTPS.
+    </p>
+    <button class="btn green" onclick="startVoice()">Tester le microphone</button>
+  </div>
+</section>
+
+</main>
+
+
+<!-- ASSISTANT MARYSE -->
+<div id="maryseBox">
+  <div id="maryseHead">
+    <strong>MARYSE Intelligence</strong>
+    <button class="closechat" onclick="toggleChat()">×</button>
+  </div>
+
+  <div id="chat">
+    <div class="msg maryse"><span>
+      Bonjour. Je suis Maryse. 👋<br>
+      Je peux vous aider avec vos clients, fournisseurs, recettes, stock,
+      inventaires, achats, prestations, livraisons et calculs de rentabilité.
+    </span></div>
+  </div>
+
+  <div id="voiceStatus">Micro arrêté — appuyez une fois pour démarrer la conversation.</div>
+
+  <div class="chatbar">
+    <input id="chatInput" placeholder="Parlez à Maryse ou écrivez ici..."
+           onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="mic" id="micButton" onclick="toggleVoice()">🎙️</button>
+    <button class="btn" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+
 <script>
-const K="maryse61";let D=JSON.parse(localStorage.getItem(K)||"null"),company="",page="home",edit=null,ctx=null,rec=null,active=false;
-const fresh=()=>{let c=crypto.randomUUID();return{v:61,company:c,companies:[{id:c,name:"Chez Colette"}],clients:[],suppliers:[],recipes:[],stock:[],purchases:[],events:[],employees:[]}};
-if(!D||D.v!==61)D=fresh();company=D.company;function save(){D.company=company;localStorage.setItem(K,JSON.stringify(D))}function A(k){return D[k].filter(x=>x.c===company)}function id(){return crypto.randomUUID()}function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}function money(x){return Number(x||0).toLocaleString("fr-FR",{minimumFractionDigits:2})+" €"}function go(x){page=x;render()}
-const N=[["home","⌂ Accueil"],["clients","👥 Clients"],["suppliers","🚚 Fournisseurs"],["recipes","🍽️ Recettes"],["stock","📦 Stock & inventaire"],["purchases","🧾 Achats"],["planning","📅 Planning"],["personnel","👤 Personnel / RH"],["gestion","📊 Gestion"],["voice","🎙️ Conversation MARYSE"],["legal","⚖️ À propos & légal"]];
-function render(){co.innerHTML=D.companies.map(x=>`<option value="${x.id}" ${x.id===company?"selected":""}>${esc(x.name)}</option>`).join("");nav.innerHTML=N.map(x=>`<button class="nav ${x[0]===page?"active":""}" onclick="go('${x[0]}')">${x[1]}</button>`).join("");({home,clients,suppliers,recipes,stock,purchases,planning,personnel,gestion,voice,legal}[page])()}
-function head(a,b,buttons=""){main.innerHTML=`<div class="head"><div><h1>${a}</h1><div class="muted">${b}</div></div><div class="actions">${buttons}</div></div>`}function card(a,b){main.innerHTML+=`<section class="card"><h2>${a}</h2>${b}</section>`}
-function home(){let ca=A("events").reduce((s,x)=>s+ +x.revenue||0,0),pu=A("purchases").reduce((s,x)=>s+ +x.total||0,0);head("Bonjour, bienvenue dans MARYSE","Votre cockpit — "+esc(D.companies.find(x=>x.id===company).name));let q=[["CA prestations",money(ca)],["Achats",money(pu)],["Clients",A("clients").length],["Stock",A("stock").length],["Recettes",A("recipes").length],["Événements",A("events").length],["Personnel",A("employees").length],["Fournisseurs",A("suppliers").length]];main.innerHTML+=`<div class="grid">${q.map(x=>`<div class="card kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("")}</div>`;card("Démarrage rapide",`<div class="actions"><button class="btn primary" onclick="openClient()">+ Client</button><button class="btn primary" onclick="openSupplier()">+ Fournisseur</button><button class="btn primary" onclick="openRecipe()">+ Recette</button><button class="btn accent" onclick="go('voice')">🎙️ Parler à MARYSE</button></div>`);card("Socle V6.1","Multi-sociétés, clients, fournisseurs, recettes, stock/inventaire, achats, planning, personnel/RH, gestion et conversation guidée sont inclus.");}
-function table(title,sub,k,add,heads,rows){head(title,sub,`<button class="btn primary" onclick="${add}">+ Nouveau</button>`);main.innerHTML+=`<section class="card">${rows?`<table><thead><tr>${heads.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`:`<div class="empty">Aucune donnée enregistrée.</div>`}</section>`}
-function clients(){let a=A("clients");table("Clients","Fiches clients","clients","openClient()",["Nom","Téléphone","E-mail","Ville",""],a.map(x=>`<tr><td><b>${esc(x.name)}</b> ${esc(x.first)}</td><td>${esc(x.phone)}</td><td>${esc(x.email)}</td><td>${esc(x.city)}</td><td><button class="btn" onclick="openClient('${x.id}')">Modifier</button></td></tr>`).join(""))}
-function suppliers(){let a=A("suppliers");table("Fournisseurs","Contacts, catalogues, produits et références","suppliers","openSupplier()",["Fournisseur","Contact","Téléphone","Produits / références",""],a.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.contact)}</td><td>${esc(x.phone)}</td><td>${esc(x.products)}</td><td><button class="btn" onclick="openSupplier('${x.id}')">Modifier</button></td></tr>`).join(""))}
-function recipes(){let a=A("recipes");table("Recettes","Fiches techniques, coût, matériel et allergènes","recipes","openRecipe()",["Recette","Portions","Coût","Allergènes",""],a.map(x=>`<tr><td><b>${esc(x.name)}</b><br>${esc(x.ingredients)}</td><td>${esc(x.portions)}</td><td>${money(x.cost)}</td><td>${esc(x.allergens)}</td><td><button class="btn" onclick="openRecipe('${x.id}')">Modifier</button></td></tr>`).join(""))}
-function stock(){let a=A("stock");head("Stock & inventaire","Stock théorique/réel, écarts, pertes, casse et lots",`<button class="btn primary" onclick="openStock()">+ Article</button><button class="btn accent" onclick="scan()">📷 Scanner</button>`);card("Scan","Le navigateur utilise BarcodeDetector lorsqu'il est disponible. L'OCR et les douchettes USB/Bluetooth sont prévus pour les connecteurs de la version connectée.");main.innerHTML+=`<section class="card">${a.length?`<table><tr><th>Article</th><th>Unité</th><th>Théorique</th><th>Réel</th><th>Écart</th><th>Lot/DLC</th><th></th></tr>${a.map(x=>`<tr><td>${esc(x.name)}<br>${esc(x.code)}</td><td>${esc(x.unit)}</td><td>${x.theo}</td><td>${x.real??"—"}</td><td><span class="badge">${x.real==null?"—":(+x.real-+x.theo).toFixed(2)}</span></td><td>${esc(x.lot)}<br>${esc(x.expiry)}</td><td><button class="btn" onclick="openStock('${x.id}')">Modifier</button></td></tr>`).join("")}</table>`:`<div class="empty">Aucun article.</div>`}</section>`}
-function purchases(){let a=A("purchases");table("Achats","Suivi des achats et des lots","purchases","openPurchase()",["Date","Fournisseur","Article","Qté","Total",""],a.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.supplier)}</td><td>${esc(x.item)}</td><td>${esc(x.qty)}</td><td>${money(x.total)}</td><td><button class="btn" onclick="openPurchase('${x.id}')">Modifier</button></td></tr>`).join(""))}
-function planning(){let a=A("events");table("Planning","Prestations, livraisons, rappels et priorités","events","openEvent()",["Date","Événement","Type","Priorité","Client","CA",""],a.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td><span class="badge">${esc(x.priority)}</span></td><td>${esc(x.client)}</td><td>${money(x.revenue)}</td><td><button class="btn" onclick="openEvent('${x.id}')">Modifier</button></td></tr>`).join(""))}
-function personnel(){let a=A("employees");head("Personnel / RH","Fiches salariés, horaires et coût de main-d'œuvre",`<button class="btn primary" onclick="openEmployee()">+ Salarié</button>`);main.innerHTML+=`<section class="card">${a.length?`<table><tr><th>Salarié</th><th>Fonction</th><th>Contrat</th><th>Coût horaire</th><th>Heures</th><th></th></tr>${a.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td>${esc(x.contract)}</td><td>${money(x.hourly)}</td><td>${(+x.hours||0).toFixed(2)}</td><td><button class="btn" onclick="clock('${x.id}')">${x.clocked?"⏹ Fin":"▶ Début"}</button> <button class="btn" onclick="openEmployee('${x.id}')">Modifier</button></td></tr>`).join("")}</table>`:`<div class="empty">Aucun salarié.</div>`}</section>`;card("RH","Les congés, absences, heures supplémentaires et règles conventionnelles doivent être adaptés au cadre social de l'entreprise.");}
-function gestion(){let ca=A("events").reduce((s,x)=>s+(+x.revenue||0),0),pu=A("purchases").reduce((s,x)=>s+(+x.total||0),0),rh=A("employees").reduce((s,x)=>s+(+x.hourly||0)*(+x.hours||0),0);head("Gestion","Vision synthétique");main.innerHTML+=`<div class="grid">${[["CA",money(ca)],["Achats",money(pu)],["Main-d'œuvre",money(rh)],["Marge simplifiée",money(ca-pu-rh)]].map(x=>`<div class="card kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("")}</div>`}
-function voice(){head("Conversation MARYSE","Dialogue guidé : demande → questions → récapitulatif → confirmation");main.innerHTML+=`<section class="voice"><button id="orb" class="orb ${active?"live":""}" onclick="toggleVoice()">🎙️</button><p id="state">${active?"Je vous écoute…":"Appuyez sur le micro pour commencer."}</p><div class="actions"><button class="btn primary" onclick="toggleVoice()">${active?"⏹ Arrêter":"🎙️ Démarrer"}</button><button class="btn" onclick="log.innerHTML=''">Effacer</button></div><div class="actions" style="margin-top:10px"><input id="typed" placeholder="Ou écrivez votre demande…" onkeydown="if(event.key==='Enter')send()"><button class="btn accent" onclick="send()">Envoyer</button></div><div id="log"></div></section>`}
-function legal(){head("À propos & informations légales","Socle documentaire de MARYSE");card("MARYSE","<p><b>MARYSE — Le copilote des métiers de bouche</b></p><p>Créé par <b>Sébastien Zevaco</b>. V6.1.</p>");card("Propriété intellectuelle","<p>Le logiciel, son code source, son interface, sa documentation et ses éléments graphiques sont protégés par les règles applicables. Toute reproduction, extraction ou exploitation non autorisée est interdite sous réserve de la loi et des contrats.</p>");card("RGPD","<p>La version commerciale devra préciser finalités, durées, droits, sous-traitants, sécurité et modalités d'exercice des droits.</p>");card("MARYSE Intelligence","<p>L'assistant aide à saisir, structurer et rechercher. Il ne modifie pas le code ou les règles de sécurité de sa propre initiative.</p>");}
-function open(t,b){dialog.innerHTML=`<div style="display:flex;justify-content:space-between"><h2>${t}</h2><button class="btn" onclick="closeM()">✕</button></div>${b}`;modal.classList.add("open")}function closeM(){modal.classList.remove("open");edit=null}function F(l,i,v="",ty="text"){return`<div class="field"><label>${l}</label><input id="${i}" type="${ty}" value="${esc(v)}"></div>`}function up(k,o){if(edit){let i=D[k].findIndex(x=>x.id===edit);D[k][i]={...D[k][i],...o}}else D[k].push({...o,id:id(),c:company});save()}
-function openClient(i=""){let x=i?D.clients.find(a=>a.id===i):{};edit=i;open("Client",`<div class="form">${F("Nom","n",x.name)}${F("Prénom","p",x.first)}${F("Téléphone","ph",x.phone)}${F("E-mail","em",x.email)}${F("Ville","vi",x.city)}</div><button class="btn primary" onclick="up('clients',{name:n.value,first:p.value,phone:ph.value,email:em.value,city:vi.value});closeM();render()">Enregistrer</button>`)}
-function openSupplier(i=""){let x=i?D.suppliers.find(a=>a.id===i):{};edit=i;open("Fournisseur",`<div class="form">${F("Nom","n",x.name)}${F("Contact","ct",x.contact)}${F("Téléphone","ph",x.phone)}${F("E-mail","em",x.email)}<div class="field full"><label>Produits / références</label><textarea id="pr">${esc(x.products)}</textarea></div></div><button class="btn primary" onclick="up('suppliers',{name:n.value,contact:ct.value,phone:ph.value,email:em.value,products:pr.value});closeM();render()">Enregistrer</button>`)}
-function openRecipe(i=""){let x=i?D.recipes.find(a=>a.id===i):{};edit=i;open("Recette",`<div class="form">${F("Nom","n",x.name)}${F("Portions","po",x.portions)}${F("Coût","co",x.cost)}${F("Allergènes","al",x.allergens)}<div class="field full"><label>Ingrédients</label><textarea id="ing">${esc(x.ingredients)}</textarea></div><div class="field full"><label>Matériel / préparation</label><textarea id="steps">${esc(x.steps)}</textarea></div></div><button class="btn primary" onclick="up('recipes',{name:n.value,portions:po.value,cost:co.value,allergens:al.value,ingredients:ing.value,steps:steps.value});closeM();render()">Enregistrer</button>`)}
-function openStock(i=""){let x=i?D.stock.find(a=>a.id===i):{};edit=i;open("Stock",`<div class="form">${F("Article","n",x.name)}${F("Code","co",x.code)}${F("Unité","un",x.unit)}${F("Théorique","th",x.theo)}${F("Réel","re",x.real)}${F("Lot","lo",x.lot)}${F("DLC / DDM","ex",x.expiry,"date")}</div><button class="btn primary" onclick="up('stock',{name:n.value,code:co.value,unit:un.value,theo:th.value,real:re.value===''?null:re.value,lot:lo.value,expiry:ex.value});closeM();render()">Enregistrer</button>`)}
-function openPurchase(i=""){let x=i?D.purchases.find(a=>a.id===i):{};edit=i;open("Achat",`<div class="form">${F("Fournisseur","su",x.supplier)}${F("Article","it",x.item)}${F("Quantité","qt",x.qty)}${F("Total","to",x.total)}${F("Lot","lo",x.lot)}${F("Date","da",x.date)}</div><button class="btn primary" onclick="up('purchases',{supplier:su.value,item:it.value,qty:qt.value,total:to.value,lot:lo.value,date:da.value});closeM();render()">Enregistrer</button>`)}
-function openEvent(i=""){let x=i?D.events.find(a=>a.id===i):{};edit=i;open("Prestation",`<div class="form">${F("Nom","n",x.name)}${F("Date","da",x.date,"date")}${F("Client","cl",x.client)}${F("CA","re",x.revenue)}<div class="field"><label>Type</label><select id="ty"><option>Professionnel</option><option>Privé</option></select></div><div class="field"><label>Priorité</label><select id="pr"><option>Normale</option><option>Haute</option><option>Urgente</option></select></div></div><button class="btn primary" onclick="up('events',{name:n.value,date:da.value,client:cl.value,revenue:re.value,type:ty.value,priority:pr.value});closeM();render()">Enregistrer</button>`)}
-function openEmployee(i=""){let x=i?D.employees.find(a=>a.id===i):{};edit=i;open("Personnel",`<div class="form">${F("Nom","n",x.name)}${F("Fonction","ro",x.role)}${F("Contrat","ct",x.contract)}${F("Coût horaire","ho",x.hourly)}${F("Heures","hr",x.hours)}</div><button class="btn primary" onclick="up('employees',{name:n.value,role:ro.value,contract:ct.value,hourly:ho.value,hours:hr.value,clocked:false});closeM();render()">Enregistrer</button>`)}
-function clock(i){let x=D.employees.find(a=>a.id===i);if(!x.clocked){x.clocked=true;x.start=Date.now()}else{x.clocked=false;x.hours=(+x.hours||0)+(Date.now()-x.start)/36e5}save();render()}function addCompany(){let n=prompt("Nom de la société / établissement :");if(!n)return;let x=id();D.companies.push({id:x,name:n});company=x;save();render()}function scan(){alert("BarcodeDetector "+("BarcodeDetector"in window?"est disponible dans ce navigateur.":"n'est pas disponible ici.")+" L'OCR avancé sera relié dans la version connectée.")}
-function send(){let e=document.getElementById("typed");if(e?.value.trim()){ask(e.value.trim());e.value=""}}function say(t){add("MARYSE",t);if("speechSynthesis"in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="fr-FR";let v=speechSynthesis.getVoices().find(x=>/^fr/i.test(x.lang)&&/female|femme|google|microsoft/i.test(x.name))||speechSynthesis.getVoices().find(x=>/^fr/i.test(x.lang));if(v)u.voice=v;speechSynthesis.speak(u)}}function add(w,t){let e=document.getElementById("log");if(e)e.innerHTML+=`<div class="bubble ${w==="Vous"?"me":"maryse"}"><small>${w}</small>${esc(t)}</div>`}
-async function toggleVoice(){if(active){active=false;try{rec?.stop()}catch(e){}voice();return}let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return alert("Reconnaissance vocale indisponible. Utilisez Chrome.");try{let s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(x=>x.stop())}catch(e){return alert("Autorisez le microphone dans Chrome.")}active=true;voice();say("Oui, je vous écoute.");listen()}
-function listen(){if(!active)return;let SR=window.SpeechRecognition||window.webkitSpeechRecognition;try{rec=new SR();rec.lang="fr-FR";rec.continuous=false;rec.interimResults=false;rec.onresult=e=>{let t=e.results[0][0].transcript;if(t)ask(t)};rec.onend=()=>{rec=null;if(active)setTimeout(listen,300)};rec.start()}catch(e){rec=null}}
-function ask(raw){add("Vous",raw);let l=raw.toLowerCase();if(/stop|arrête/.test(l)){active=false;try{rec?.stop()}catch(e){}say("D'accord, j'arrête.");return}if(ctx){if(ctx.s==="confirm"){if(/^(oui|ok|confirme)/i.test(raw)){D[ctx.k].push({...ctx.d,id:id(),c:company});save();ctx=null;say("C'est enregistré.");return}if(/^(non|annule)/i.test(raw)){ctx=null;say("D'accord, je n'enregistre rien.");return}}if(ctx.s==="name"){ctx.d.name=raw;ctx.s="confirm";say(`J'ai noté ${raw}. Est-ce que j'enregistre ?`);return}}if(/client/.test(l)){ctx={k:"clients",d:{},s:"name"};say("Très bien. Quel est le nom du client ?");return}if(/fournisseur/.test(l)){ctx={k:"suppliers",d:{},s:"name"};say("Quel est le nom du fournisseur ?");return}if(/recette/.test(l)){ctx={k:"recipes",d:{},s:"name"};say("Quel est le nom de la recette ?");return}if(/stock|inventaire/.test(l)){go("stock");say("J'ouvre le stock.");return}if(/planning|prestation/.test(l)){go("planning");say("J'ouvre le planning.");return}if(/personnel|salarié|employé/.test(l)){go("personnel");say("J'ouvre le personnel.");return}say("Je peux gérer les clients, fournisseurs, recettes, stock, achats, planning et personnel. Que souhaitez-vous faire ?")}
-modal.onclick=e=>{if(e.target===modal)closeM()};window.addEventListener("load",()=>{navigator.serviceWorker?.register("./sw.js");render()});
-</script></body></html>
+/* ============================================================
+   MARYSE V6.1 — DONNÉES
+============================================================ */
+
+const KEY="maryse_v61_data";
+
+let data={
+  societes:[],
+  clients:[],
+  fournisseurs:[],
+  recettes:[],
+  stock:[],
+  agenda:[],
+  achats:[],
+  traces:[],
+  params:{nom:"MARYSE",activite:""}
+};
+
+function loadData(){
+  try{
+    const saved=localStorage.getItem(KEY);
+    if(saved) data=Object.assign(data,JSON.parse(saved));
+  }catch(e){console.error(e)}
+}
+
+function saveData(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  refreshAll();
+}
+
+function id(){
+  return Date.now()+Math.floor(Math.random()*10000);
+}
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function money(v){
+  return Number(v||0).toLocaleString("fr-FR",{
+    style:"currency",currency:"EUR"
+  });
+}
+
+function today(){
+  return new Date().toISOString().slice(0,10);
+}
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+document.querySelectorAll("#nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>showView(btn.dataset.view));
+});
+
+function showView(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  const target=document.getElementById(name);
+  if(target)target.classList.add("active");
+
+  document.querySelectorAll("#nav button").forEach(b=>{
+    b.classList.toggle("active",b.dataset.view===name);
+  });
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+
+/* ============================================================
+   SOCIETES
+============================================================ */
+
+function addSociete(){
+  const nom=socNom.value.trim();
+  if(!nom)return alert("Indiquez le nom de la société ou de l'établissement.");
+
+  data.societes.push({
+    id:id(),nom,
+    activite:socActivite.value,
+    adresse:socAdresse.value,
+    siret:socSiret.value
+  });
+
+  ["socNom","socActivite","socAdresse","socSiret"].forEach(x=>document.getElementById(x).value="");
+  saveData();
+}
+
+function deleteItem(type,itemId){
+  if(!confirm("Supprimer cet élément ?"))return;
+  data[type]=data[type].filter(x=>x.id!==itemId);
+  saveData();
+}
+
+function renderSocietes(){
+  const el=document.getElementById("societesList");
+  if(!data.societes.length){
+    el.innerHTML='<div class="empty">Aucune société enregistrée.</div>';
+    return;
+  }
+
+  el.innerHTML=data.societes.map(x=>`
+    <div class="item">
+      <strong>${esc(x.nom)}</strong>
+      <div class="small">${esc(x.activite)} · ${esc(x.adresse)}</div>
+      <div class="small">SIRET : ${esc(x.siret)}</div>
+      <div class="actions">
+        <button class="btn danger" onclick="deleteItem('societes',${x.id})">Supprimer</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+
+/* ============================================================
+   CLIENTS
+============================================================ */
+
+function addClient(){
+  const nom=cliNom.value.trim();
+  if(!nom)return alert("Indiquez le nom du client.");
+
+  data.clients.push({
+    id:id(),nom,tel:cliTel.value,email:cliEmail.value,
+    adresse:cliAdresse.value,type:cliType.value,note:cliNote.value
+  });
+
+  ["cliNom","cliTel","cliEmail","cliAdresse","cliNote"]
+    .forEach(x=>document.getElementById(x).value="");
+
+  saveData();
+}
+
+function renderClients(){
+  const q=(document.getElementById("clientSearch")?.value||"").toLowerCase();
+  const arr=data.clients.filter(x=>
+    [x.nom,x.tel,x.email,x.adresse,x.type].join(" ").toLowerCase().includes(q)
+  );
+
+  clientsList.innerHTML=arr.length?arr.map(x=>`
+    <div class="item">
+      <strong>${esc(x.nom)}</strong>
+      <span class="badge">${esc(x.type)}</span>
+      <div class="small">${esc(x.tel)} · ${esc(x.email)}</div>
+      <div class="small">${esc(x.adresse)}</div>
+      <div>${esc(x.note)}</div>
+      <div class="actions">
+        <button class="btn danger" onclick="deleteItem('clients',${x.id})">Supprimer</button>
+      </div>
+    </div>
+  `).join(""):'<div class="empty">Aucun client trouvé.</div>';
+}
+
+
+/* ============================================================
+   FOURNISSEURS
+============================================================ */
+
+function addFournisseur(){
+  const nom=fourNom.value.trim();
+  if(!nom)return alert("Indiquez le nom du fournisseur.");
+
+  data.fournisseurs.push({
+    id:id(),nom,contact:fourContact.value,tel:fourTel.value,
+    email:fourEmail.value,produits:fourProduits.value,refs:fourRefs.value
+  });
+
+  ["fourNom","fourContact","fourTel","fourEmail","fourProduits","fourRefs"]
+    .forEach(x=>document.getElementById(x).value="");
+
+  saveData();
+}
+
+function renderFournisseurs(){
+  fournisseursList.innerHTML=data.fournisseurs.length?
+    data.fournisseurs.map(x=>`
+      <div class="item">
+        <strong>${esc(x.nom)}</strong>
+        <div class="small">Contact : ${esc(x.contact)}</div>
+        <div>${esc(x.tel)} · ${esc(x.email)}</div>
+        <div><b>Produits :</b> ${esc(x.produits)}</div>
+        <div><b>Références :</b> ${esc(x.refs)}</div>
+        <div class="actions">
+          <button class="btn danger" onclick="deleteItem('fournisseurs',${x.id})">Supprimer</button>
+        </div>
+      </div>
+    `).join("")
+    :'<div class="empty">Aucun fournisseur enregistré.</div>';
+}
+
+
+/* ============================================================
+   RECETTES
+============================================================ */
+
+function addRecette(){
+  const nom=recNom.value.trim();
+  if(!nom)return alert("Indiquez le nom de la recette.");
+
+  const file=recPhoto.files[0];
+
+  const finish=photo=>{
+    data.recettes.push({
+      id:id(),nom,
+      portions:Number(recPortions.value)||1,
+      prix:Number(recPrix.value)||0,
+      ingredients:recIngredients.value,
+      materiel:recMateriel.value,
+      preparation:recPreparation.value,
+      photo:photo||""
+    });
+
+    ["recNom","recPortions","recPrix","recIngredients","recMateriel","recPreparation"]
+      .forEach(x=>{
+        const e=document.getElementById(x);
+        if(x==="recPortions")e.value=10;
+        else e.value="";
+      });
+    recPhoto.value="";
+    saveData();
+  };
+
+  if(file){
+    const reader=new FileReader();
+    reader.onload=()=>finish(reader.result);
+    reader.readAsDataURL(file);
+  }else finish("");
+}
+
+function renderRecettes(){
+  recettesList.innerHTML=data.recettes.length?
+    data.recettes.map(x=>`
+      <div class="item">
+        ${x.photo?`<img src="${x.photo}" style="width:100%;max-height:220px;object-fit:cover;border-radius:9px;margin-bottom:10px">`:""}
+        <strong>${esc(x.nom)}</strong>
+        <span class="badge">${x.portions} portions</span>
+        ${x.prix?`<span class="badge gold">${money(x.prix)} / portion</span>`:""}
+        <hr>
+        <b>Ingrédients</b>
+        <div class="small">${esc(x.ingredients).replace(/\n/g,"<br>")}</div>
+        <br>
+        <b>Matériel</b>
+        <div class="small">${esc(x.materiel).replace(/\n/g,"<br>")}</div>
+        <br>
+        <b>Préparation</b>
+        <div class="small">${esc(x.preparation).replace(/\n/g,"<br>")}</div>
+        <div class="actions">
+          <button class="btn danger" onclick="deleteItem('recettes',${x.id})">Supprimer</button>
+        </div>
+      </div>
+    `).join("")
+    :'<div class="empty">Aucune recette enregistrée.</div>';
+}
+
+
+/* ============================================================
+   STOCK
+============================================================ */
+
+function addStock(){
+  const nom=stockNom.value.trim();
+  if(!nom)return alert("Indiquez le produit.");
+
+  data.stock.push({
+    id:id(),nom,
+    categorie:stockCat.value,
+    qte:Number(stockQte.value)||0,
+    unite:stockUnite.value,
+    prix:Number(stockPrix.value)||0,
+    seuil:Number(stockSeuil.value)||0,
+    ref:stockRef.value
+  });
+
+  ["stockNom","stockCat","stockQte","stockPrix","stockSeuil","stockRef"]
+    .forEach(x=>document.getElementById(x).value="");
+
+  saveData();
+}
+
+function renderStock(){
+  const q=(stockSearch?.value||"").toLowerCase();
+
+  const arr=data.stock.filter(x=>
+    [x.nom,x.categorie,x.ref].join(" ").toLowerCase().includes(q)
+  );
+
+  stockList.innerHTML=arr.length?arr.map(x=>{
+    const low=x.qte<=x.seuil;
+    return `
+      <div class="item">
+        <strong>${esc(x.nom)}</strong>
+        <span class="badge">${esc(x.categorie)}</span>
+        ${low?'<span class="badge red">Stock bas</span>':''}
+        <div style="font-size:22px;font-weight:700;margin-top:6px">
+          ${x.qte} ${esc(x.unite)}
+        </div>
+        <div class="small">
+          Prix : ${money(x.prix)} · Valeur : ${money(x.qte*x.prix)}
+          · Seuil : ${x.seuil} ${esc(x.unite)}
+        </div>
+        <div class="small">Référence : ${esc(x.ref)}</div>
+        <div class="actions">
+          <button class="btn green" onclick="adjustStock(${x.id},1)">+ Stock</button>
+          <button class="btn secondary" onclick="adjustStock(${x.id},-1)">− Stock</button>
+          <button class="btn danger" onclick="deleteItem('stock',${x.id})">Supprimer</button>
+        </div>
+      </div>
+    `;
+  }).join(""):'<div class="empty">Aucun produit trouvé.</div>';
+}
+
+function adjustStock(itemId,direction){
+  const item=data.stock.find(x=>x.id===itemId);
+  if(!item)return;
+
+  const q=prompt(
+    direction>0
+      ?"Quantité à ajouter :"
+      :"Quantité à retirer :",
+    "1"
+  );
+
+  if(q===null)return;
+
+  const n=Number(q);
+  if(!isFinite(n)||n<0)return;
+
+  item.qte=Math.max(0,item.qte+(n*direction));
+  saveData();
+}
+
+
+/* ============================================================
+   INVENTAIRE
+============================================================ */
+
+function renderInventaire(){
+  inventaireTable.innerHTML=data.stock.length?
+    data.stock.map(x=>`
+      <tr>
+        <td><strong>${esc(x.nom)}</strong><br><span class="small">${esc(x.ref)}</span></td>
+        <td>${x.qte} ${esc(x.unite)}</td>
+        <td>
+          <input id="real_${x.id}" type="number" step="0.01"
+                 value="${x.qte}" style="min-width:100px"
+                 oninput="showDiff(${x.id})">
+        </td>
+        <td id="diff_${x.id}">0</td>
+        <td>
+          <button class="btn green" onclick="validateInventory(${x.id})">Valider</button>
+        </td>
+      </tr>
+    `).join("")
+    :'<tr><td colspan="5" class="empty">Aucun produit en stock.</td></tr>';
+}
+
+function showDiff(itemId){
+  const item=data.stock.find(x=>x.id===itemId);
+  const real=Number(document.getElementById("real_"+itemId).value)||0;
+  const diff=real-item.qte;
+  document.getElementById("diff_"+itemId).innerHTML=
+    `<span class="${diff<0?'badge red':'badge green'}">${diff>0?"+":""}${diff} ${esc(item.unite)}</span>`;
+}
+
+function validateInventory(itemId){
+  const item=data.stock.find(x=>x.id===itemId);
+  const real=Number(document.getElementById("real_"+itemId).value);
+
+  if(!isFinite(real)||real<0)return;
+
+  const old=item.qte;
+  const diff=real-old;
+
+  item.qte=real;
+
+  data.traces.push({
+    id:id(),
+    date:today(),
+    produit:item.nom,
+    lot:"",
+    fournisseur:"",
+    type:"Inventaire",
+    note:`Stock théorique : ${old} ${item.unite}. Stock réel : ${real} ${item.unite}. Écart : ${diff} ${item.unite}.`,
+    photo:""
+  });
+
+  saveData();
+}
+
+
+/* ============================================================
+   AGENDA
+============================================================ */
+
+function addEvent(){
+  const nom=evtNom.value.trim();
+  if(!nom)return alert("Indiquez le nom de la prestation ou de l'événement.");
+
+  data.agenda.push({
+    id:id(),
+    date:evtDate.value||today(),
+    heure:evtHeure.value,
+    type:evtType.value,
+    priorite:evtPriorite.value,
+    nom,
+    personnes:Number(evtPersonnes.value)||0,
+    client:evtClient.value,
+    ca:Number(evtCA.value)||0,
+    note:evtNote.value
+  });
+
+  ["evtNom","evtPersonnes","evtClient","evtCA","evtNote"]
+    .forEach(x=>document.getElementById(x).value="");
+
+  saveData();
+}
+
+function renderAgenda(){
+  const arr=[...data.agenda].sort((a,b)=>
+    (a.date+a.heure).localeCompare(b.date+b.heure)
+  );
+
+  agendaList.innerHTML=arr.length?arr.map(x=>`
+    <div class="item">
+      <strong>${esc(x.nom)}</strong>
+      <span class="badge">${esc(x.type)}</span>
+      <span class="badge ${x.priorite==="Urgente"?"red":x.priorite==="Importante"?"gold":""}">
+        ${esc(x.priorite)}
+      </span>
+      <div style="margin-top:7px;font-weight:700">
+        ${esc(x.date)} ${esc(x.heure)}
+      </div>
+      <div class="small">
+        ${x.personnes?x.personnes+" personnes · ":""}
+        ${esc(x.client)}
+        ${x.ca?` · ${money(x.ca)}`:""}
+      </div>
+      <div>${esc(x.note)}</div>
+      <div class="actions">
+        <button class="btn danger" onclick="deleteItem('agenda',${x.id})">Supprimer</button>
+      </div>
+    </div>
+  `).join("")
+  :'<div class="empty">Aucune prestation ou livraison planifiée.</div>';
+}
+
+
+/* ============================================================
+   ACHATS
+============================================================ */
+
+function addAchat(){
+  if(!achProduit.value.trim())return alert("Indiquez le produit.");
+
+  const q=Number(achQte.value)||0;
+  const prix=Number(achPrix.value)||0;
+
+  data.achats.push({
+    id:id(),
+    date:achDate.value||today(),
+    fournisseur:achFournisseur.value,
+    produit:achProduit.value,
+    qte:q,
+    prix,
+    total:q*prix,
+    ref:achRef.value
+  });
+
+  ["achFournisseur","achProduit","achQte","achPrix","achRef"]
+    .forEach(x=>document.getElementById(x).value="");
+
+  saveData();
+}
+
+function renderAchats(){
+  const total=data.achats.reduce((s,x)=>s+Number(x.total||0),0);
+
+  achatsList.innerHTML=`
+    <div class="notice">Total des achats enregistrés : <strong>${money(total)}</strong></div>
+    ${data.achats.length?data.achats.slice().reverse().map(x=>`
+      <div class="item">
+        <strong>${esc(x.produit)}</strong>
+        <span class="badge">${esc(x.fournisseur)}</span>
+        <div class="small">${esc(x.date)} · ${x.qte} · ${money(x.prix)} / unité</div>
+        <div><strong>${money(x.total)}</strong></div>
+        <div class="small">Référence : ${esc(x.ref)}</div>
+        <div class="actions">
+          <button class="btn danger" onclick="deleteItem('achats',${x.id})">Supprimer</button>
+        </div>
+      </div>
+    `).join(""):'<div class="empty">Aucun achat enregistré.</div>'}
+  `;
+}
+
+
+/* ============================================================
+   TRACABILITE
+============================================================ */
+
+function addTrace(){
+  if(!trProduit.value.trim())return alert("Indiquez le produit.");
+
+  const file=trPhoto.files[0];
+
+  const finish=photo=>{
+    data.traces.push({
+      id:id(),
+      date:trDate.value||today(),
+      produit:trProduit.value,
+      lot:trLot.value,
+      fournisseur:trFournisseur.value,
+      type:trType.value,
+      note:trNote.value,
+      photo:photo||""
+    });
+
+    ["trProduit","trLot","trFournisseur","trNote"]
+      .forEach(x=>document.getElementById(x).value="");
+
+    trPhoto.value="";
+    saveData();
+  };
+
+  if(file){
+    const reader=new FileReader();
+    reader.onload=()=>finish(reader.result);
+    reader.readAsDataURL(file);
+  }else finish("");
+}
+
+function renderTraces(){
+  traceList.innerHTML=data.traces.length?
+    data.traces.slice().reverse().map(x=>`
+      <div class="item">
+        <strong>${esc(x.produit)}</strong>
+        <span class="badge">${esc(x.type)}</span>
+        <div class="small">
+          ${esc(x.date)} · Lot : ${esc(x.lot)}
+          · Fournisseur : ${esc(x.fournisseur)}
+        </div>
+        <div>${esc(x.note)}</div>
+        ${x.photo?`<img src="${x.photo}" style="max-width:100%;max-height:220px;border-radius:8px;margin-top:9px">`:""}
+        <div class="actions">
+          <button class="btn danger" onclick="deleteItem('traces',${x.id})">Supprimer</button>
+        </div>
+      </div>
+    `).join("")
+    :'<div class="empty">Aucune donnée de traçabilité.</div>';
+}
+
+
+/* ============================================================
+   RENTABILITE
+============================================================ */
+
+function calculerMarge(){
+  const personnes=Number(mPers.value)||0;
+  const prix=Number(mPrix.value)||0;
+  const matiere=Number(mMatiere.value)||0;
+  const personnel=Number(mPersonnel.value)||0;
+  const autres=Number(mAutres.value)||0;
+
+  const ca=personnes*prix;
+  const coutMat=personnes*matiere;
+  const total=coutMat+personnel+autres;
+  const marge=ca-total;
+  const taux=ca?marge/ca*100:0;
+
+  margeResult.innerHTML=`
+    <div class="grid">
+      <div class="card"><div class="small">Chiffre d'affaires</div><div class="kpi">${money(ca)}</div></div>
+      <div class="card"><div class="small">Coût matières</div><div class="kpi">${money(coutMat)}</div></div>
+      <div class="card"><div class="small">Coût total</div><div class="kpi">${money(total)}</div></div>
+      <div class="card"><div class="small">Marge</div><div class="kpi">${money(marge)}</div></div>
+    </div>
+    <div class="notice" style="margin-top:12px">
+      Taux de marge sur CA : <strong>${taux.toFixed(1)} %</strong>
+    </div>
+  `;
+}
+
+function renderRentabilite(){
+  const ca=data.agenda.reduce((s,x)=>s+Number(x.ca||0),0);
+  const achats=data.achats.reduce((s,x)=>s+Number(x.total||0),0);
+
+  rentCA.textContent=money(ca);
+  rentAchats.textContent=money(achats);
+  rentMarge.textContent=money(ca-achats);
+}
+
+
+/* ============================================================
+   TABLEAU DE BORD
+============================================================ */
+
+function renderDashboard(){
+  const ca=data.agenda.reduce((s,x)=>s+Number(x.ca||0),0);
+  const achats=data.achats.reduce((s,x)=>s+Number(x.total||0),0);
+
+  kpiCA.textContent=money(ca);
+  kpiAchats.textContent=money(achats);
+  kpiMarge.textContent=money(ca-achats);
+  kpiPrestations.textContent=data.agenda.filter(x=>x.type==="Prestation").length;
+
+  const low=data.stock.filter(x=>x.qte<=x.seuil&&x.seuil>0);
+
+  alerts.innerHTML=low.length?
+    low.map(x=>`
+      <div class="item">
+        <span class="badge red">Stock bas</span>
+        <strong>${esc(x.nom)}</strong>
+        <div class="small">${x.qte} ${esc(x.unite)} restant(s)</div>
+      </div>
+    `).join("")
+    :'<div class="small">Aucune alerte de stock.</div>';
+}
+
+
+/* ============================================================
+   PARAMETRES / SAUVEGARDE
+============================================================ */
+
+function saveParams(){
+  data.params.nom=paramNom.value||"MARYSE";
+  data.params.activite=paramActivite.value;
+  saveData();
+  alert("Paramètres enregistrés.");
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="maryse-sauvegarde.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(event){
+  const file=event.target.files[0];
+  if(!file)return;
+
+  const reader=new FileReader();
+
+  reader.onload=()=>{
+    try{
+      const imported=JSON.parse(reader.result);
+      data=Object.assign(data,imported);
+      saveData();
+      alert("Sauvegarde importée.");
+    }catch(e){
+      alert("Fichier de sauvegarde invalide.");
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function resetData(){
+  if(!confirm(
+    "ATTENTION : toutes les données enregistrées sur cet appareil seront supprimées. Continuer ?"
+  ))return;
+
+  localStorage.removeItem(KEY);
+  location.reload();
+}
+
+
+/* ============================================================
+   PHOTO INVENTAIRE
+============================================================ */
+
+invPhoto.addEventListener("change",()=>{
+  const file=invPhoto.files[0];
+  if(!file)return;
+
+  const reader=new FileReader();
+
+  reader.onload=()=>{
+    invPhotoPreview.innerHTML=`
+      <img src="${reader.result}"
+           style="max-width:100%;max-height:300px;border-radius:10px">
+      <div class="small" style="margin-top:6px">
+        Photo capturée. Elle peut servir de référence pour le contrôle de l'inventaire.
+      </div>
+    `;
+  };
+
+  reader.readAsDataURL(file);
+});
+
+
+/* ============================================================
+   ASSISTANT MARYSE
+============================================================ */
+
+let recognition=null;
+let listening=false;
+let speaking=false;
+let shouldListen=false;
+
+const SpeechRecognition=
+  window.SpeechRecognition||window.webkitSpeechRecognition;
+
+function addMessage(text,type="maryse"){
+  const chat=document.getElementById("chat");
+  const div=document.createElement("div");
+  div.className="msg "+type;
+
+  const span=document.createElement("span");
+  span.innerHTML=esc(text).replace(/\n/g,"<br>");
+
+  div.appendChild(span);
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)){
+    addMessage(text,"maryse");
+    return;
+  }
+
+  speaking=true;
+
+  window.speechSynthesis.cancel();
+
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="fr-FR";
+  u.rate=1;
+  u.pitch=1;
+
+  u.onend=()=>{
+    speaking=false;
+
+    /*
+      POINT IMPORTANT :
+      Après la réponse de Maryse, la reconnaissance vocale
+      redémarre automatiquement lorsque le mode conversation
+      reste activé.
+    */
+    if(shouldListen)setTimeout(startRecognition,350);
+  };
+
+  u.onerror=()=>{
+    speaking=false;
+    if(shouldListen)setTimeout(startRecognition,350);
+  };
+
+  window.speechSynthesis.speak(u);
+}
+
+function initRecognition(){
+  if(!SpeechRecognition){
+    voiceStatus.textContent=
+      "La reconnaissance vocale n'est pas disponible dans ce navigateur.";
+    return false;
+  }
+
+  recognition=new SpeechRecognition();
+
+  recognition.lang="fr-FR";
+
+  /*
+    On utilise continuous quand le navigateur le permet.
+    Certains téléphones arrêtent néanmoins le moteur après
+    quelques secondes de silence : on le relance automatiquement.
+  */
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  recognition.maxAlternatives=1;
+
+  recognition.onstart=()=>{
+    listening=true;
+    micButton.classList.add("on");
+    voiceStatus.textContent=
+      "🎙️ Maryse écoute… vous pouvez parler naturellement.";
+  };
+
+  recognition.onresult=event=>{
+    let finalText="";
+
+    for(let i=event.resultIndex;i<event.results.length;i++){
+      const result=event.results[i];
+
+      if(result.isFinal){
+        finalText+=result[0].transcript;
+      }
+    }
+
+    finalText=finalText.trim();
+
+    if(!finalText)return;
+
+    addMessage(finalText,"user");
+    processMaryse(finalText);
+  };
+
+  recognition.onerror=event=>{
+    console.log("Voice:",event.error);
+
+    if(event.error==="not-allowed"||event.error==="service-not-allowed"){
+      listening=false;
+      shouldListen=false;
+      micButton.classList.remove("on");
+      voiceStatus.textContent=
+        "Microphone refusé. Autorisez le microphone dans le navigateur.";
+    }
+  };
+
+  recognition.onend=()=>{
+    listening=false;
+    micButton.classList.remove("on");
+
+    if(shouldListen&&!speaking){
+      setTimeout(startRecognition,400);
+    }
+  };
+
+  return true;
+}
+
+function startRecognition(){
+  if(!shouldListen)return;
+
+  if(!recognition){
+    if(!initRecognition())return;
+  }
+
+  if(listening||speaking)return;
+
+  try{
+    recognition.start();
+  }catch(e){
+    setTimeout(()=>{
+      if(shouldListen&&!listening)startRecognition();
+    },700);
+  }
+}
+
+function stopVoice(){
+  shouldListen=false;
+  listening=false;
+
+  if(recognition){
+    try{recognition.stop()}catch(e){}
+  }
+
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+
+  speaking=false;
+  micButton.classList.remove("on");
+  voiceStatus.textContent="Micro arrêté.";
+}
+
+function startVoice(){
+  shouldListen=true;
+
+  if(!window.isSecureContext){
+    voiceStatus.textContent=
+      "⚠️ Le microphone nécessite une connexion HTTPS.";
+    addMessage(
+      "Pour utiliser ma voix, ouvre MARYSE sur une adresse HTTPS et autorise le microphone.",
+      "maryse"
+    );
+    return;
+  }
+
+  startRecognition();
+}
+
+function toggleVoice(){
+  if(shouldListen)stopVoice();
+  else startVoice();
+}
+
+function toggleChat(){
+  const box=document.getElementById("maryseBox");
+  box.style.display=box.style.display==="none"?"block":"none";
+}
+
+
+/* ============================================================
+   COMPREHENSION VOCALE MARYSE
+============================================================ */
+
+const vocabulaireMetier=[
+  "restaurant","restauration","traiteur","boulangerie","pâtisserie",
+  "boucherie","charcuterie","poissonnerie","cuisine","chef",
+  "commis","plonge","production","mise en place","service",
+  "cocktail","buffet","mariage","séminaire","réception",
+  "prestation","livraison","banquet","apéritif","amuse-bouche",
+  "entrée","plat","dessert","fromage","pain",
+  "viande","bœuf","veau","porc","agneau","volaille",
+  "poisson","saumon","thon","bar","cabillaud","lotte",
+  "crevette","crevettes","homard","langoustine","huître",
+  "moule","coquillage","chipiron","calamar",
+  "légume","fruit","herbe","épice","sauce",
+  "jus","fond","fumet","bouillon","marinade",
+  "émulsion","vinaigrette","mayonnaise","béarnaise",
+  "cuisson","rôtir","griller","saisir","poêler","braiser",
+  "mijoter","confire","fumer","flamber","mariner",
+  "plancha","brasero","four","friteuse","salamandre",
+  "cellule","chambre froide","congélateur","thermomètre",
+  "stock","inventaire","casse","perte","rupture",
+  "lot","traçabilité","étiquette","dlc","ddm",
+  "fournisseur","catalogue","référence","commande",
+  "achat","prix","marge","coût matière","rentabilité",
+  "client","facture","devis","acompte","encaissement"
+];
+
+function normalize(s){
+  return s.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .trim();
+}
+
+function processMaryse(raw){
+  const text=normalize(raw);
+
+  /*
+    Arrêt vocal.
+  */
+  if(
+    text==="arrete"||
+    text==="stop"||
+    text.includes("arrete de m'ecouter")||
+    text.includes("arrete maryse")
+  ){
+    stopVoice();
+    speak("D'accord, j'arrête l'écoute.");
+    return;
+  }
+
+  /*
+    Navigation.
+  */
+  if(text.includes("ouvre les clients")||text.includes("affiche les clients")){
+    showView("clients");
+    reply("J'ouvre les clients.");
+    return;
+  }
+
+  if(text.includes("ouvre les fournisseurs")||text.includes("affiche les fournisseurs")){
+    showView("fournisseurs");
+    reply("J'ouvre les fournisseurs.");
+    return;
+  }
+
+  if(text.includes("ouvre le stock")||text.includes("affiche le stock")){
+    showView("stock");
+    reply("J'ouvre le stock.");
+    return;
+  }
+
+  if(text.includes("ouvre l'inventaire")||text.includes("ouvre inventaire")){
+    showView("inventaire");
+    reply("J'ouvre l'inventaire.");
+    return;
+  }
+
+  if(text.includes("ouvre les recettes")||text.includes("affiche les recettes")){
+    showView("recettes");
+    reply("J'ouvre les recettes.");
+    return;
+  }
+
+  if(
+    text.includes("ouvre l'agenda")||
+    text.includes("ouvre le planning")||
+    text.includes("affiche l'agenda")
+  ){
+    showView("agenda");
+    reply("J'ouvre l'agenda.");
+    return;
+  }
+
+  if(text.includes("rentabilite")||text.includes("marge")){
+    showView("rentabilite");
+    reply(
+      `J'ouvre la rentabilité. Actuellement, ton chiffre d'affaires enregistré est de ${money(
+        data.agenda.reduce((s,x)=>s+Number(x.ca||0),0)
+      )}.`
+    );
+    return;
+  }
+
+  /*
+    Stock.
+  */
+  if(text.includes("stock")){
+    const low=data.stock.filter(x=>x.qte<=x.seuil&&x.seuil>0);
+
+    if(text.includes("manque")||text.includes("alerte")||text.includes("bas")){
+      if(!low.length){
+        reply("Je n'ai actuellement aucune alerte de stock.");
+      }else{
+        reply(
+          "Les stocks bas sont : "+
+          low.map(x=>`${x.nom}, ${x.qte} ${x.unite}`).join("; ")+"."
+        );
+      }
+      return;
+    }
+
+    const found=data.stock.find(x=>text.includes(normalize(x.nom)));
+
+    if(found){
+      reply(
+        `${found.nom} : il reste ${found.qte} ${found.unite}. `+
+        `Le seuil d'alerte est de ${found.seuil} ${found.unite}.`
+      );
+      return;
+    }
+
+    reply(
+      `J'ai ${data.stock.length} produits enregistrés dans le stock. `+
+      `Dis-moi le nom d'un produit pour que je recherche sa quantité.`
+    );
+    return;
+  }
+
+  /*
+    Fournisseur.
+  */
+  if(text.includes("fournisseur")){
+    if(!data.fournisseurs.length){
+      reply("Aucun fournisseur n'est encore enregistré.");
+      showView("fournisseurs");
+      return;
+    }
+
+    const found=data.fournisseurs.find(x=>
+      text.includes(normalize(x.nom))
+    );
+
+    if(found){
+      reply(
+        `${found.nom}. Contact : ${found.contact||"non renseigné"}. `+
+        `Téléphone : ${found.tel||"non renseigné"}. `+
+        `Produits : ${found.produits||"non renseignés"}.`
+      );
+    }else{
+      reply(
+        `Tu as ${data.fournisseurs.length} fournisseur(s) enregistré(s). `+
+        `Je peux rechercher un fournisseur précis si tu me donnes son nom.`
+      );
+    }
+    return;
+  }
+
+  /*
+    Client.
+  */
+  if(text.includes("client")){
+    if(!data.clients.length){
+      reply("Aucun client n'est encore enregistré.");
+      showView("clients");
+      return;
+    }
+
+    const found=data.clients.find(x=>
+      text.includes(normalize(x.nom))
+    );
+
+    if(found){
+      reply(
+        `${found.nom}. Téléphone : ${found.tel||"non renseigné"}. `+
+        `Email : ${found.email||"non renseigné"}.`
+      );
+    }else{
+      reply(`J'ai ${data.clients.length} client(s) enregistré(s).`);
+    }
+    return;
+  }
+
+  /*
+    Agenda.
+  */
+  if(
+    text.includes("agenda")||
+    text.includes("planning")||
+    text.includes("prestation")||
+    text.includes("livraison")
+  ){
+    const upcoming=data.agenda
+      .filter(x=>x.date>=today())
+      .sort((a,b)=>(a.date+a.heure).localeCompare(b.date+b.heure))
+      .slice(0,3);
+
+    if(!upcoming.length){
+      reply("Je n'ai aucune prestation ou livraison future enregistrée.");
+    }else{
+      reply(
+        "Voici les prochaines échéances : "+
+        upcoming.map(x=>
+          `${x.date} ${x.heure||""}, ${x.nom}`
+        ).join("; ")
+      );
+    }
+
+    showView("agenda");
+    return;
+  }
+
+  /*
+    Recettes.
+  */
+  if(text.includes("recette")||text.includes("fiche technique")){
+    if(!data.recettes.length){
+      reply("Tu n'as encore aucune recette enregistrée.");
+      showView("recettes");
+      return;
+    }
+
+    const found=data.recettes.find(x=>
+      text.includes(normalize(x.nom))
+    );
+
+    if(found){
+      reply(
+        `La recette ${found.nom} est prévue pour ${found.portions} portions. `+
+        `Prix de vente enregistré : ${money(found.prix)} par portion.`
+      );
+    }else{
+      reply(`Tu as ${data.recettes.length} recette(s) enregistrée(s).`);
+    }
+
+    showView("recettes");
+    return;
+  }
+
+  /*
+    Achats.
+  */
+  if(text.includes("achat")||text.includes("commande")){
+    const total=data.achats.reduce((s,x)=>s+Number(x.total||0),0);
+
+    reply(
+      `Le montant total des achats enregistrés est de ${money(total)}. `+
+      `Tu as ${data.achats.length} achat(s) enregistré(s).`
+    );
+
+    showView("achats");
+    return;
+  }
+
+  /*
+    Rentabilité.
+  */
+  if(
+    text.includes("rentable")||
+    text.includes("rentabilite")||
+    text.includes("marge")||
+    text.includes("cout matiere")
+  ){
+    const ca=data.agenda.reduce((s,x)=>s+Number(x.ca||0),0);
+    const achats=data.achats.reduce((s,x)=>s+Number(x.total||0),0);
+
+    reply(
+      `Sur les données enregistrées, le chiffre d'affaires prévu est de ${money(ca)}, `+
+      `les achats sont de ${money(achats)}, soit une différence de ${money(ca-achats)}. `+
+      `Attention : ce n'est pas encore une marge nette, car il manque notamment la main-d'œuvre, `+
+      `les charges et les autres coûts.`
+    );
+
+    showView("rentabilite");
+    return;
+  }
+
+  /*
+    Inventaire.
+  */
+  if(
+    text.includes("inventaire")||
+    text.includes("compter le stock")||
+    text.includes("stock reel")
+  ){
+    showView("inventaire");
+    reply(
+      "J'ouvre l'inventaire. Tu peux comparer les quantités théoriques et réelles, " +
+      "puis valider les écarts."
+    );
+    return;
+  }
+
+  /*
+    Présentation générale.
+  */
+  if(
+    text.includes("bonjour")||
+    text.includes("salut")||
+    text.includes("bonsoir")||
+    text.includes("hello")
+  ){
+    reply(
+      "Bonjour ! Je suis prête. " +
+      "Tu peux me parler de tes clients, fournisseurs, recettes, achats, stock, " +
+      "inventaires, prestations ou rentabilité."
+    );
+    return;
+  }
+
+  if(text.includes("merci")){
+    reply("Avec plaisir. On continue.");
+    return;
+  }
+
+  /*
+    Vocabulaire métier : si un terme culinaire est détecté,
+    Maryse montre qu'elle l'a reconnu.
+  */
+  const terms=vocabulaireMetier.filter(v=>text.includes(normalize(v)));
+
+  if(terms.length){
+    reply(
+      `J'ai bien compris. Tu parles de ${terms.slice(0,4).join(", ")}. `+
+      `Je peux travailler avec ces informations dans les modules de MARYSE.`
+    );
+    return;
+  }
+
+  /*
+    Réponse générale.
+  */
+  reply(
+    "J'ai compris ta demande, mais cette version de test ne dispose pas encore " +
+    "d'un moteur d'intelligence artificielle connecté à distance pour traiter " +
+    "toutes les conversations libres. Tu peux néanmoins me demander directement " +
+    "d'ouvrir un module, de consulter le stock, les clients, les fournisseurs, " +
+    "les recettes, l'agenda, les achats ou la rentabilité."
+  );
+}
+
+function reply(text){
+  addMessage(text,"maryse");
+
+  if(shouldListen){
+    speak(text);
+  }
+}
+
+
+/* ============================================================
+   CHAT TEXTE
+============================================================ */
+
+function sendChat(){
+  const input=document.getElementById("chatInput");
+  const text=input.value.trim();
+
+  if(!text)return;
+
+  addMessage(text,"user");
+  input.value="";
+
+  processMaryse(text);
+}
+
+
+/* ============================================================
+   RAFRAICHISSEMENT
+============================================================ */
+
+function refreshAll(){
+  renderSocietes();
+  renderClients();
+  renderFournisseurs();
+  renderRecettes();
+  renderStock();
+  renderInventaire();
+  renderAgenda();
+  renderAchats();
+  renderTraces();
+  renderDashboard();
+  renderRentabilite();
+
+  if(data.params){
+    paramNom.value=data.params.nom||"MARYSE";
+    paramActivite.value=data.params.activite||"";
+  }
+}
+
+
+/* ============================================================
+   DEMARRAGE
+============================================================ */
+
+loadData();
+
+if(!evtDate.value)evtDate.value=today();
+if(!achDate.value)achDate.value=today();
+if(!trDate.value)trDate.value=today();
+
+refreshAll();
+
+if(!window.isSecureContext){
+  voiceStatus.textContent=
+    "⚠️ Microphone : MARYSE doit être ouverte en HTTPS.";
+}
+
+</script>
+
+</body>
+          </html>

@@ -1791,14 +1791,136 @@ let data={
   users:[]
 };
 
-let recognition=null;
-let listening=false;
-let speaking=false;
-let shouldListen=false;
+let recognition = null;
+let listening = false;
+let speaking = false;
+let voiceRestartTimer = null;
 
-const SpeechRecognition=
-window.SpeechRecognition ||
-window.webkitSpeechRecognition;
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+function initVoice() {
+  if (!SpeechRecognition) {
+    console.log("Reconnaissance vocale non disponible");
+    return false;
+  }
+
+  if (recognition) {
+    try {
+      recognition.abort();
+    } catch(e) {}
+  }
+
+  recognition = new SpeechRecognition();
+
+  recognition.lang = "fr-FR";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function() {
+    listening = true;
+  };
+
+  recognition.onresult = function(event) {
+    if (!event.results || !event.results.length) return;
+
+    const result =
+      event.results[event.results.length - 1];
+
+    if (!result.isFinal) return;
+
+    const texte =
+      result[0].transcript.trim();
+
+    if (!texte) return;
+
+    listening = false;
+
+    // Une seule commande traitée
+    if (typeof handleMaryseVoiceCommand === "function") {
+      handleMaryseVoiceCommand(texte);
+    }
+  };
+
+  recognition.onerror = function(event) {
+    console.log("Erreur vocale :", event.error);
+    listening = false;
+  };
+
+  recognition.onend = function() {
+    listening = false;
+  };
+
+  return true;
+}
+
+function startVoice() {
+
+  if (listening) return;
+  if (speaking) return;
+
+  if (!recognition) {
+    if (!initVoice()) return;
+  }
+
+  try {
+    recognition.start();
+  } catch(e) {
+    console.log("Écoute déjà active");
+  }
+}
+
+function stopVoice() {
+
+  if (!recognition) return;
+
+  listening = false;
+
+  try {
+    recognition.abort();
+  } catch(e) {}
+}
+
+function speakMaryse(texte) {
+
+  if (!texte) return;
+
+  // Maryse arrête d'écouter pendant qu'elle parle
+  stopVoice();
+
+  window.speechSynthesis.cancel();
+
+  const message =
+    new SpeechSynthesisUtterance(texte);
+
+  message.lang = "fr-FR";
+  message.rate = 0.95;
+  message.pitch = 1;
+  message.volume = 1;
+
+  speaking = true;
+
+  message.onend = function() {
+
+    speaking = false;
+
+    clearTimeout(voiceRestartTimer);
+
+    // Petite pause pour éviter que Maryse
+    // entende sa propre voix
+    voiceRestartTimer = setTimeout(function() {
+      startVoice();
+    }, 700);
+  };
+
+  message.onerror = function() {
+    speaking = false;
+  };
+
+  window.speechSynthesis.speak(message);
+  }
 
 
 /* OUTILS */
